@@ -186,3 +186,27 @@ def search_icd(q: str = Query(..., min_length=1), limit: int = 10):
 @app.get("/dictionary", response_class=HTMLResponse)
 def dictionary_page(request: Request):
     return templates.TemplateResponse("dictionary.html", {"request": request, "title": "Dictionary"})
+
+@app.get("/quiz/cpt", response_class=HTMLResponse)
+def quiz_cpt(request: Request):
+    return templates.TemplateResponse("quiz_cpt.html", {"request": request, "title": "CPT Quiz"})
+
+@app.get("/quiz/icd10", response_class=HTMLResponse)
+def quiz_icd10(request: Request):
+    return templates.TemplateResponse("quiz_icd10.html", {"request": request, "title": "ICD-10 Quiz"})
+
+@app.get("/cases", response_class=HTMLResponse)
+def cases_home(request: Request):
+    return templates.TemplateResponse("cases_home.html", {"request": request, "title": "Cases"})
+
+@app.get("/cases/cpt", response_class=HTMLResponse)
+def cases_cpt(request: Request):
+    return templates.TemplateResponse("cases_cpt.html", {"request": request, "title": "CPT Cases"})
+
+@app.get("/cases/icd10", response_class=HTMLResponse)
+def cases_icd10(request: Request):
+    return templates.TemplateResponse("cases_icd10.html", {"request": request, "title": "ICD-10 Cases"})
+
+@app.get("/cases/mixed", response_class=HTMLResponse)
+def cases_mixed(request: Request):
+    return templates.TemplateResponse("cases_mixed.html", {"request": request, "title": "Mixed Cases"})
