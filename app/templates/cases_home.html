@@ -1,0 +1,25 @@
+{% include "partials/header.html" %}
+
+<div class="card section" style="margin-top:18px">
+  <h3>Clinical Cases</h3>
+  <div class="small" style="margin-bottom:12px">Choose a set of cases and test yourself.</div>
+
+  <div class="grid">
+    <a class="card section" href="/cases/cpt">
+      <h4 style="margin:0 0 6px">CPT Cases</h4>
+      <div class="small">Procedure-focused scenarios</div>
+    </a>
+
+    <a class="card section" href="/cases/icd10">
+      <h4 style="margin:0 0 6px">ICD-10 Cases</h4>
+      <div class="small">Diagnosis-focused scenarios</div>
+    </a>
+
+    <a class="card section" href="/cases/mixed">
+      <h4 style="margin:0 0 6px">Mixed Cases</h4>
+      <div class="small">Real-life coding cases</div>
+    </a>
+  </div>
+</div>
+
+{% include "partials/footer.html" %}
