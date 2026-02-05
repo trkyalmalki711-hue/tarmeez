@@ -111,13 +111,9 @@ def home(request: Request):
 # ----------------------------
 # QUIZ (HTML pages)
 # ----------------------------
-@app.get("/quiz", response_class=HTMLResponse)
-def quiz_select(request: Request):
-    # If you don't have quiz_select.html, you can just link directly to /quiz/run/cpt
-    return templates.TemplateResponse(
-        "quiz_select.html",
-        {"request": request, "title": "Quiz"},
-    )
+app.get("/quiz", response_class=HTMLResponse)
+def quiz_page(request: Request):
+    return templates.TemplateResponse("quiz.html", {"request": request, "title": "Quiz"})
 
 
 @app.get("/quiz/run/{kind}", response_class=HTMLResponse)
@@ -160,18 +156,15 @@ def legacy_quiz_api(kind: str, n: int = 10):
 # ----------------------------
 # Dictionary / Free search APIs (JSON)
 # ----------------------------
-@app.get("/dict/cpt")
-def dict_cpt(q: str = Query(..., min_length=1), limit: int = 20):
-    if CPT_DF is None:
-        raise HTTPException(status_code=500, detail="CPT data not loaded")
-    return {"query": q, "results": free_search(CPT_DF, q, limit=limit, kind="cpt")}
+@app.get("/cpt", response_class=HTMLResponse)
+def cpt_page(request: Request):
+    return templates.TemplateResponse("cpt.html", {"request": request, "title": "CPT Search"})
 
 
-@app.get("/dict/icd")
-def dict_icd(q: str = Query(..., min_length=1), limit: int = 20):
-    if ICD_DF is None:
-        raise HTTPException(status_code=500, detail="ICD data not loaded")
-    return {"query": q, "results": free_search(ICD_DF, q, limit=limit, kind="icd")}
+@app.get("/icd10", response_class=HTMLResponse)
+def icd_page(request: Request):
+    return templates.TemplateResponse("icd10.html", {"request": request, "title": "ICD-10 Search"})
+
 
 
 # ----------------------------
@@ -192,7 +185,4 @@ def search_icd(q: str = Query(..., min_length=1), limit: int = 10):
 
 @app.get("/dictionary", response_class=HTMLResponse)
 def dictionary_page(request: Request):
-    return templates.TemplateResponse(
-        "dictionary.html",
-        {"request": request}
-    )
+    return templates.TemplateResponse("dictionary.html", {"request": request, "title": "Dictionary"})

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="nav card">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>Tarmeez</h1>
+          <p>CPT & ICD-10 Academy</p>
+        </div>
+      </div>
+
+      <div class="navlinks">
+        <a class="pill" href="/">Home</a>
+        <a class="pill" href="/cpt">CPT</a>
+        <a class="pill" href="/icd10">ICD-10</a>
+        <a class="pill" href="/dictionary">Dictionary</a>
+        <a class="pill" href="/quiz">Quiz</a>
+      </div>
+
+      <div class="langToggle">
+        <a class="pill" href="#" onclick="setLang('en'); return false;">English</a>
+        <a class="pill" href="#" onclick="setLang('ar'); return false;">العربية</a>
+      </div>
+    </div>
+
+    <div class="card section" style="margin-top:18px">
+      <h3 id="title">ICD-10 Search</h3>
+      <div class="small" id="subtitle" style="margin-bottom:10px">Search by code or description.</div>
+
+      <input class="input" id="icdInput" placeholder="Search ICD-10..." />
+      <div id="icdResults" style="margin-top:12px"></div>
+    </div>
+
+    <div class="footer">© <span id="yr"></span> Tarmeez</div>
+  </div>
+
+  <script>
+    document.getElementById("yr").textContent = new Date().getFullYear();
+    function setLang(lang){
+      if(lang==="ar"){
+        document.documentElement.lang="ar"; document.body.dir="rtl";
+        document.getElementById("title").textContent="بحث ICD-10";
+        document.getElementById("subtitle").textContent="ابحث بالكود أو الوصف.";
+        document.getElementById("icdInput").placeholder="ابحث في ICD-10...";
+      } else {
+        document.documentElement.lang="en"; document.body.dir="ltr";
+        document.getElementById("title").textContent="ICD-10 Search";
+        document.getElementById("subtitle").textContent="Search by code or description.";
+        document.getElementById("icdInput").placeholder="Search ICD-10...";
+      }
+    }
+  </script>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
