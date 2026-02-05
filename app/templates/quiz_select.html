@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page">
+  <div class="card">
+    <h1 class="title">Quiz Center</h1>
+    <p class="muted">Choose a module and start your practice.</p>
+
+    <div class="grid2">
+      <a class="tile" href="/quiz/cpt">
+        <div class="tile-badge">CPT</div>
+        <div class="tile-title">Procedures</div>
+        <div class="tile-sub">Practice CPT codes & descriptions</div>
+      </a>
+
+      <a class="tile" href="/quiz/icd">
+        <div class="tile-badge">ICD-10</div>
+        <div class="tile-title">Diagnosis</div>
+        <div class="tile-sub">Practice ICD-10 codes & diagnoses</div>
+      </a>
+    </div>
+
+    <div class="divider"></div>
+
+    <form class="form" action="/quiz/cpt" method="get">
+      <div class="row">
+        <label>Questions</label>
+        <input name="n" type="number" min="5" max="50" value="10" />
+      </div>
+
+      <div class="row">
+        <label>Language</label>
+        <select name="ui_lang">
+          <option value="en" selected>English</option>
+          <option value="ar">Arabic</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label>Start with</label>
+        <select name="kind">
+          <option value="cpt" selected>CPT</option>
+          <option value="icd">ICD-10</option>
+        </select>
+      </div>
+
+      <button class="btn primary" type="submit">Start Quiz</button>
+      <p class="hint">Tip: You can switch CPT/ICD anytime from the top menu.</p>
+    </form>
+  </div>
+</section>
+
+<script>
+  // simple redirect based on "kind"
+  const form = document.querySelector("form.form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const kind = fd.get("kind");
+    const n = fd.get("n");
+    const ui = fd.get("ui_lang");
+    window.location.href = `/quiz/${kind}?n=${encodeURIComponent(n)}&ui_lang=${encodeURIComponent(ui)}`;
+  });
+</script>
+{% endblock %}

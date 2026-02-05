@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tarmeez
+</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+
+<header>
+  <h1 id="title">Tarmeez</h1>
+  <div class="lang-switch">
+    <button onclick="setLang('en')">English</button>
+    <button onclick="setLang('ar')">العربية</button>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h2 id="cpt-title">CPT Search</h2>
+    <input id="cpt-input" type="text" placeholder="Search CPT..." oninput="searchCPT()" />
+    <ul id="cpt-results"></ul>
+  </section>
+
+  <section>
+    <h2 id="icd-title">ICD-10 Search</h2>
+    <input id="icd-input" type="text" placeholder="Search ICD-10..." oninput="searchICD()" />
+    <ul id="icd-results"></ul>
+  </section>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

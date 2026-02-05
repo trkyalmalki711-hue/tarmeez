@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CPT & ICD Dictionary</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    body { font-family: Arial, sans-serif; background:#f5f8ff; }
+    .wrap { max-width: 900px; margin: 40px auto; }
+    h1 { color:#0b3c8a; }
+    .tabs button {
+      padding:10px 16px; margin-right:8px; border:none;
+      background:#dbe7ff; cursor:pointer; border-radius:6px;
+    }
+    .tabs button.active { background:#0b3c8a; color:white; }
+    input {
+      width:100%; padding:12px; font-size:16px; margin:16px 0;
+    }
+    .card {
+      background:white; padding:14px; margin-bottom:10px;
+      border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.08);
+    }
+    .code { font-weight:bold; color:#0b3c8a; }
+    .meta { color:#666; font-size:13px; margin-top:4px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>📘 CPT & ICD Dictionary</h1>
+
+    <div class="tabs">
+      <button id="tab-cpt" class="active">CPT</button>
+      <button id="tab-icd">ICD</button>
+    </div>
+
+    <input id="q" placeholder="Search code or description…" />
+
+    <div id="results"></div>
+  </div>
+
+<script>
+let KIND = "cpt";
+
+const qInput = document.getElementById("q");
+const results = document.getElementById("results");
+
+document.getElementById("tab-cpt").onclick = () => switchKind("cpt");
+document.getElementById("tab-icd").onclick = () => switchKind("icd");
+
+function switchKind(k) {
+  KIND = k;
+  document.getElementById("tab-cpt").classList.toggle("active", k==="cpt");
+  document.getElementById("tab-icd").classList.toggle("active", k==="icd");
+  results.innerHTML = "";
+  if (qInput.value.length >= 2) search();
+}
+
+qInput.addEventListener("input", () => {
+  if (qInput.value.length >= 2) search();
+  else results.innerHTML = "";
+});
+
+async function search() {
+  const q = qInput.value;
+  results.innerHTML = "Searching…";
+
+  const res = await fetch(`/dict/${KIND}?q=` + encodeURIComponent(q));
+  const data = await res.json();
+
+  results.innerHTML = "";
+  if (!data.results.length) {
+    results.innerHTML = "<p>No results</p>";
+    return;
+  }
+
+  data.results.forEach(r => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <div class="code">${r.code}</div>
+      <div>${r.description}</div>
+      <div class="meta">${Object.values(r.meta || {}).join(" • ")}</div>
+    `;
+    results.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
