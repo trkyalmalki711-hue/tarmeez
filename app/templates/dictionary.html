@@ -1,89 +1,84 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>CPT & ICD Dictionary</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-  <style>
-    body { font-family: Arial, sans-serif; background:#f5f8ff; }
-    .wrap { max-width: 900px; margin: 40px auto; }
-    h1 { color:#0b3c8a; }
-    .tabs button {
-      padding:10px 16px; margin-right:8px; border:none;
-      background:#dbe7ff; cursor:pointer; border-radius:6px;
-    }
-    .tabs button.active { background:#0b3c8a; color:white; }
-    input {
-      width:100%; padding:12px; font-size:16px; margin:16px 0;
-    }
-    .card {
-      background:white; padding:14px; margin-bottom:10px;
-      border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.08);
-    }
-    .code { font-weight:bold; color:#0b3c8a; }
-    .meta { color:#666; font-size:13px; margin-top:4px; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <h1>📘 CPT & ICD Dictionary</h1>
+{% include "partials/header.html" %}
 
-    <div class="tabs">
-      <button id="tab-cpt" class="active">CPT</button>
-      <button id="tab-icd">ICD</button>
+<div class="card section" style="margin-top:18px">
+
+  <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px">
+    <div>
+      <h3>Dictionary</h3>
+      <div class="small">Search CPT & ICD codes with clean results</div>
     </div>
 
-    <input id="q" placeholder="Search code or description…" />
-
-    <div id="results"></div>
+    <div class="actions">
+      <button id="btn-cpt" class="btn btnPrimary" onclick="setKind('cpt')">CPT</button>
+      <button id="btn-icd" class="btn btnGhost" onclick="setKind('icd')">ICD</button>
+    </div>
   </div>
 
+  <div style="margin-top:14px">
+    <input
+      id="q"
+      class="input"
+      type="text"
+      placeholder="Search code or description..."
+      oninput="search()"
+    >
+  </div>
+
+  <div id="results" style="margin-top:16px"></div>
+
+</div>
+
 <script>
-let KIND = "cpt";
+  let kind = "cpt";
+  let timer = null;
 
-const qInput = document.getElementById("q");
-const results = document.getElementById("results");
-
-document.getElementById("tab-cpt").onclick = () => switchKind("cpt");
-document.getElementById("tab-icd").onclick = () => switchKind("icd");
-
-function switchKind(k) {
-  KIND = k;
-  document.getElementById("tab-cpt").classList.toggle("active", k==="cpt");
-  document.getElementById("tab-icd").classList.toggle("active", k==="icd");
-  results.innerHTML = "";
-  if (qInput.value.length >= 2) search();
-}
-
-qInput.addEventListener("input", () => {
-  if (qInput.value.length >= 2) search();
-  else results.innerHTML = "";
-});
-
-async function search() {
-  const q = qInput.value;
-  results.innerHTML = "Searching…";
-
-  const res = await fetch(`/dict/${KIND}?q=` + encodeURIComponent(q));
-  const data = await res.json();
-
-  results.innerHTML = "";
-  if (!data.results.length) {
-    results.innerHTML = "<p>No results</p>";
-    return;
+  function setKind(k){
+    kind = k;
+    document.getElementById("results").innerHTML = "";
+    document.getElementById("btn-cpt").className =
+      k === "cpt" ? "btn btnPrimary" : "btn btnGhost";
+    document.getElementById("btn-icd").className =
+      k === "icd" ? "btn btnPrimary" : "btn btnGhost";
   }
 
-  data.results.forEach(r => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <div class="code">${r.code}</div>
-      <div>${r.description}</div>
-      <div class="meta">${Object.values(r.meta || {}).join(" • ")}</div>
-    `;
-    results.appendChild(div);
-  });
-}
+  function search(){
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const q = document.getElementById("q").value.trim();
+      if(q.length < 2){
+        document.getElementById("results").innerHTML = "";
+        return;
+      }
+
+      try{
+        const res = await fetch(`/search/${kind}?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+
+        if(!data.results || data.results.length === 0){
+          document.getElementById("results").innerHTML =
+            `<div class="small">No results found</div>`;
+          return;
+        }
+
+        document.getElementById("results").innerHTML =
+          data.results.map(r => `
+            <div class="card section" style="margin-bottom:10px">
+              <div style="display:flex; justify-content:space-between; gap:12px">
+                <strong>${r.code}</strong>
+                <span class="small">${kind.toUpperCase()}</span>
+              </div>
+              <div class="small" style="margin-top:6px">
+                ${r.description || ""}
+              </div>
+            </div>
+          `).join("");
+
+      }catch(e){
+        document.getElementById("results").innerHTML =
+          `<div class="small" style="color:var(--bad)">Error loading results</div>`;
+      }
+    }, 300); // debounce
+  }
 </script>
-</body>
-</html>
+
+{% include "partials/footer.html" %}
