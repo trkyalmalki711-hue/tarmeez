@@ -1,0 +1,17 @@
+{% include "partials/header.html" %}
+
+<div class="card section" style="margin-top:18px">
+  <h3>CPT Quiz</h3>
+  <div class="small" style="margin-bottom:12px">Ready? Start a CPT quiz round.</div>
+
+  <div class="actions">
+    <a class="btn btnPrimary" href="{{ start_url or '#' }}">Start CPT Quiz</a>
+    <a class="btn btnGhost" href="/quiz">Back</a>
+  </div>
+
+  <div class="small" style="margin-top:12px; color:var(--muted)">
+    If “Start” doesn’t open the quiz yet, we’ll connect it to your existing quiz route next.
+  </div>
+</div>
+
+{% include "partials/footer.html" %}

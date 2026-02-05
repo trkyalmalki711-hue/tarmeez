@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title or "Tarmeez" }}</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="nav card">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>Tarmeez</h1>
+          <p>CPT & ICD-10 Academy</p>
+        </div>
+      </div>
+
+      <div class="navlinks">
+        <a class="pill" href="/">Home</a>
+        <a class="pill" href="/cpt">CPT</a>
+        <a class="pill" href="/icd10">ICD-10</a>
+        <a class="pill" href="/cases">Cases</a>
+        <a class="pill" href="/quiz">Quiz</a>
+        <a class="pill" href="/dictionary">Dictionary</a>
+      </div>
+
+      <div class="langToggle">
+        <a class="pill" href="#" onclick="setLang('en'); return false;">English</a>
+        <a class="pill" href="#" onclick="setLang('ar'); return false;">العربية</a>
+      </div>
+    </div>
+
+    <script>
+      function setLang(lang){
+        if(lang === "ar"){
+          document.documentElement.lang = "ar";
+          document.body.dir = "rtl";
+        } else {
+          document.documentElement.lang = "en";
+          document.body.dir = "ltr";
+        }
+      }
+    </script>
