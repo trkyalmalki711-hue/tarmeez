@@ -246,3 +246,19 @@ def search_icd(q: str = Query(..., min_length=1), limit: int = 10):
 def legacy_quiz_api(kind: str, n: int = 10):
     df, k = _get_df(kind)
     return build_quiz(df, k, n=n)
+
+@app.get("/about", response_class=HTMLResponse)
+def about_page(request: Request):
+    return templates.TemplateResponse("about.html", {"request": request, "title": "About"})
+
+@app.get("/login", response_class=HTMLResponse)
+def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request, "title": "Login"})
+
+@app.get("/account", response_class=HTMLResponse)
+def account_page(request: Request):
+    return templates.TemplateResponse("account.html", {"request": request, "title": "Account"})
+
+@app.get("/notes", response_class=HTMLResponse)
+def notes_page(request: Request):
+    return templates.TemplateResponse("notes.html", {"request": request, "title": "Notes"})

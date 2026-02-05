@@ -1,0 +1,31 @@
+{% include "partials/header.html" %}
+<div class="card section" style="margin-top:18px">
+  <h3>Notes</h3>
+  <div class="small" style="margin-bottom:12px">Write quick study notes and save them.</div>
+
+  <textarea class="input" style="height:160px; resize:vertical" placeholder="Write your note..."></textarea>
+  <div class="actions" style="margin-top:12px">
+    <button class="btn btnPrimary" type="button" onclick="saveNote()">Save</button>
+    <button class="btn btnGhost" type="button" onclick="clearNote()">Clear</button>
+  </div>
+
+  <div class="small" style="margin-top:12px" id="noteStatus"></div>
+</div>
+
+<script>
+  const key="tarmeez_note";
+  const ta = document.querySelector("textarea");
+  ta.value = localStorage.getItem(key) || "";
+
+  function saveNote(){
+    localStorage.setItem(key, ta.value);
+    document.getElementById("noteStatus").textContent="Saved ✅";
+  }
+  function clearNote(){
+    ta.value="";
+    localStorage.removeItem(key);
+    document.getElementById("noteStatus").textContent="Cleared ✅";
+  }
+</script>
+
+{% include "partials/footer.html" %}

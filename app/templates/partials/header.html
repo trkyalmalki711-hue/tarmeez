@@ -3,44 +3,65 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ title or "Tarmeez" }}</title>
+  <title>{{ title or "ترميز | Tarmeez" }}</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Main Styles -->
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 
 <body>
+  <div class="bg"></div>
+
   <div class="container">
-    <div class="nav card">
+    <header class="nav card">
       <div class="brand">
-        <div class="logo"></div>
-        <div>
-          <h1>Tarmeez</h1>
-          <p>CPT & ICD-10 Academy</p>
+        <div class="logo" aria-hidden="true"></div>
+        <div class="brandText">
+          <div class="brandTitle">ترميز | Tarmeez</div>
+          <div class="brandSub">CPT & ICD-10 Academy</div>
         </div>
       </div>
 
-      <div class="navlinks">
+      <nav class="navlinks" aria-label="Primary">
         <a class="pill" href="/">Home</a>
         <a class="pill" href="/cpt">CPT</a>
         <a class="pill" href="/icd10">ICD-10</a>
-        <a class="pill" href="/cases">Cases</a>
-        <a class="pill" href="/quiz">Quiz</a>
         <a class="pill" href="/dictionary">Dictionary</a>
-      </div>
+        <a class="pill" href="/quiz">Quiz</a>
+        <a class="pill" href="/cases">Cases</a>
+        <a class="pill" href="/notes">Notes</a>
+        <a class="pill" href="/about">About</a>
+        <a class="pill" href="/account">Account</a>
+        <a class="pill" href="/login">Login</a>
+      </nav>
 
-      <div class="langToggle">
-        <a class="pill" href="#" onclick="setLang('en'); return false;">English</a>
-        <a class="pill" href="#" onclick="setLang('ar'); return false;">العربية</a>
+      <div class="rightTools">
+        <div class="langToggle" aria-label="Language">
+          <button class="pill" type="button" onclick="setLang('en')">English</button>
+          <button class="pill" type="button" onclick="setLang('ar')">العربية</button>
+        </div>
       </div>
-    </div>
+    </header>
 
     <script>
       function setLang(lang){
         if(lang === "ar"){
           document.documentElement.lang = "ar";
           document.body.dir = "rtl";
+          localStorage.setItem("tarmeez_lang","ar");
         } else {
           document.documentElement.lang = "en";
           document.body.dir = "ltr";
+          localStorage.setItem("tarmeez_lang","en");
         }
       }
+      (function initLang(){
+        const saved = localStorage.getItem("tarmeez_lang");
+        if(saved){ setLang(saved); }
+      })();
     </script>
