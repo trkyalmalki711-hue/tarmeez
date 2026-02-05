@@ -1,35 +1,146 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Tarmeez
-</title>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title or "Tarmeez" }}</title>
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
+
 <body>
+  <div class="container">
+    <!-- Top Nav -->
+    <div class="nav card">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          <h1>Tarmeez</h1>
+          <p>CPT & ICD-10 Academy</p>
+        </div>
+      </div>
 
-<header>
-  <h1 id="title">Tarmeez</h1>
-  <div class="lang-switch">
-    <button onclick="setLang('en')">English</button>
-    <button onclick="setLang('ar')">العربية</button>
+      <div class="navlinks">
+        <a class="pill" href="/">Home</a>
+        <a class="pill" href="/dictionary">Dictionary</a>
+        <a class="pill" href="/quiz">Quiz</a>
+      </div>
+
+      <div class="langToggle">
+        <a class="pill" href="#" onclick="setLang('en'); return false;">English</a>
+        <a class="pill" href="#" onclick="setLang('ar'); return false;">العربية</a>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="card heroMain">
+        <div class="kicker"><span class="dot"></span> Fast search • Clean UI • Made for students</div>
+        <h2>
+          Find the right <span>CPT</span> & <span>ICD-10</span> code—fast.
+        </h2>
+        <p id="heroText">
+          Search CPT and ICD-10 in one place. Clean results, quick lookup, and quizzes to help you master coding.
+        </p>
+
+        <div class="actions">
+          <a class="btn btnPrimary" href="#search">Start searching</a>
+          <a class="btn btnGhost" href="/quiz">Try the quiz</a>
+        </div>
+
+        <div class="badges">
+          <span class="badge">CPT + ICD-10</span>
+          <span class="badge">Arabic/English</span>
+          <span class="badge">FastAPI</span>
+          <span class="badge">Render</span>
+        </div>
+      </div>
+
+      <div class="card heroSide">
+        <div class="statGrid">
+          <div class="stat">
+            <div class="n">⚡</div>
+            <div class="l">Instant search</div>
+          </div>
+          <div class="stat">
+            <div class="n">🎯</div>
+            <div class="l">Quiz practice</div>
+          </div>
+          <div class="stat">
+            <div class="n">📚</div>
+            <div class="l">Dictionary</div>
+          </div>
+          <div class="stat">
+            <div class="n">🧠</div>
+            <div class="l">Study-focused</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px" class="small">
+          Tip: On the free plan, the first visit after inactivity may take ~30–50 seconds to wake up.
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Section -->
+    <div id="search" class="card section">
+      <h3 id="searchTitle">Search</h3>
+
+      <div class="grid">
+        <div>
+          <div class="small" style="margin-bottom:8px" id="cptLabel">CPT Search</div>
+          <input class="input" id="cptInput" placeholder="Search CPT..." />
+        </div>
+        <div>
+          <div class="small" style="margin-bottom:8px" id="icdLabel">ICD-10 Search</div>
+          <input class="input" id="icdInput" placeholder="Search ICD-10..." />
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="small" id="hint">
+        Results will show below (we’ll style them next).
+      </div>
+
+      <!-- Optional containers if your JS needs them -->
+      <div id="cptResults" style="margin-top:12px"></div>
+      <div id="icdResults" style="margin-top:12px"></div>
+    </div>
+
+    <div class="footer">
+      © <span id="yr"></span> Tarmeez • Built with FastAPI
+    </div>
   </div>
-</header>
 
-<main>
-  <section>
-    <h2 id="cpt-title">CPT Search</h2>
-    <input id="cpt-input" type="text" placeholder="Search CPT..." oninput="searchCPT()" />
-    <ul id="cpt-results"></ul>
-  </section>
+  <script>
+    document.getElementById("yr").textContent = new Date().getFullYear();
 
-  <section>
-    <h2 id="icd-title">ICD-10 Search</h2>
-    <input id="icd-input" type="text" placeholder="Search ICD-10..." oninput="searchICD()" />
-    <ul id="icd-results"></ul>
-  </section>
-</main>
+    function setLang(lang){
+      if(lang === "ar"){
+        document.documentElement.lang = "ar";
+        document.body.dir = "rtl";
+        document.getElementById("heroText").textContent =
+          "ابحث عن أكواد CPT و ICD-10 بسرعة وبواجهة مرتبة. نتائج أوضح وكويز يساعدك تحفظ وتفهم.";
+        document.getElementById("searchTitle").textContent = "البحث";
+        document.getElementById("cptLabel").textContent = "بحث CPT";
+        document.getElementById("icdLabel").textContent = "بحث ICD-10";
+        document.getElementById("cptInput").placeholder = "ابحث في CPT...";
+        document.getElementById("icdInput").placeholder = "ابحث في ICD-10...";
+        document.getElementById("hint").textContent = "بتطلع النتائج تحت (بنرتّب شكلها الخطوة الجاية).";
+      }else{
+        document.documentElement.lang = "en";
+        document.body.dir = "ltr";
+        document.getElementById("heroText").textContent =
+          "Search CPT and ICD-10 in one place. Clean results, quick lookup, and quizzes to help you master coding.";
+        document.getElementById("searchTitle").textContent = "Search";
+        document.getElementById("cptLabel").textContent = "CPT Search";
+        document.getElementById("icdLabel").textContent = "ICD-10 Search";
+        document.getElementById("cptInput").placeholder = "Search CPT...";
+        document.getElementById("icdInput").placeholder = "Search ICD-10...";
+        document.getElementById("hint").textContent = "Results will show below (we’ll style them next).";
+      }
+    }
+  </script>
 
-<script src="/static/app.js"></script>
+  <!-- إذا عندك JS للبحث، خله يتنفذ هنا -->
+  <script src="/static/app.js"></script>
 </body>
 </html>
