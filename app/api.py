@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Query, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -74,11 +74,11 @@ def _get_df(kind: str):
         if CPT_DF is None:
             raise HTTPException(status_code=500, detail="CPT data not loaded")
         return CPT_DF, "cpt"
-    if kind == "icd":
+    if kind in ("icd", "icd10"):
         if ICD_DF is None:
             raise HTTPException(status_code=500, detail="ICD data not loaded")
         return ICD_DF, "icd"
-    raise HTTPException(status_code=400, detail="kind must be 'cpt' or 'icd'")
+    raise HTTPException(status_code=400, detail="kind must be 'cpt' or 'icd' (or 'icd10')")
 
 
 # ----------------------------
@@ -94,67 +94,18 @@ def status():
 
 
 # ----------------------------
-# Home / Simple pages
+# Home
 # ----------------------------
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse(
         "index.html",
-        {
-            "request": request,
-            "title": "Tarmeez"
-,
-        },
+        {"request": request, "title": "Tarmeez"},
     )
 
 
 # ----------------------------
-# QUIZ (HTML pages)
-# ----------------------------
-app.get("/quiz", response_class=HTMLResponse)
-def quiz_page(request: Request):
-    return templates.TemplateResponse("quiz.html", {"request": request, "title": "Quiz"})
-
-
-@app.get("/quiz/run/{kind}", response_class=HTMLResponse)
-def quiz_run(request: Request, kind: str, n: int = 10, ui_lang: str = "en"):
-    kind = (kind or "").lower()
-    if kind not in ("cpt", "icd"):
-        kind = "cpt"
-
-    return templates.TemplateResponse(
-        "quiz_run.html",
-        {
-            "request": request,
-            "title": f"{kind.upper()} Quiz",
-            "kind": kind,
-            # لا تكتب ICD-10 لو ملفك مو ICD-10 فعلاً — خله عام
-            "kind_upper": ("ICD (Diagnosis)" if kind == "icd" else "CPT"),
-            "n": n,
-            "ui_lang": ui_lang,
-        },
-    )
-
-
-# ----------------------------
-# QUIZ (JSON API) - the correct API
-# ----------------------------
-@app.get("/api/quiz/{kind}")
-def api_quiz(kind: str, n: int = 10):
-    df, k = _get_df(kind)
-    return build_quiz(df, k, n=n)
-
-
-# Backward-compat API (optional):
-# If you were using /quiz/cpt as JSON before, keep this too:
-@app.get("/quiz/{kind}")
-def legacy_quiz_api(kind: str, n: int = 10):
-    df, k = _get_df(kind)
-    return build_quiz(df, k, n=n)
-
-
-# ----------------------------
-# Dictionary / Free search APIs (JSON)
+# Search Pages (HTML)
 # ----------------------------
 @app.get("/cpt", response_class=HTMLResponse)
 def cpt_page(request: Request):
@@ -166,10 +117,114 @@ def icd_page(request: Request):
     return templates.TemplateResponse("icd10.html", {"request": request, "title": "ICD-10 Search"})
 
 
+@app.get("/dictionary", response_class=HTMLResponse)
+def dictionary_page(request: Request):
+    return templates.TemplateResponse("dictionary.html", {"request": request, "title": "Dictionary"})
+
 
 # ----------------------------
-# Simple search endpoints (optional aliases)
+# QUIZ Pages (HTML)
 # ----------------------------
+@app.get("/quiz", response_class=HTMLResponse)
+def quiz_home(request: Request):
+    # your new modern page
+    return templates.TemplateResponse("quiz_home.html", {"request": request, "title": "Quiz"})
+
+
+@app.get("/quiz/cpt", response_class=HTMLResponse)
+def quiz_cpt(request: Request):
+    # Start button should point to /quiz/run/cpt
+    return templates.TemplateResponse(
+        "quiz_cpt.html",
+        {"request": request, "title": "CPT Quiz", "start_url": "/quiz/run/cpt?n=10&ui_lang=en"},
+    )
+
+
+@app.get("/quiz/icd10", response_class=HTMLResponse)
+def quiz_icd10(request: Request):
+    # map icd10 page to existing runner kind=icd
+    return templates.TemplateResponse(
+        "quiz_icd10.html",
+        {"request": request, "title": "ICD-10 Quiz", "start_url": "/quiz/run/icd?n=10&ui_lang=en"},
+    )
+
+
+@app.get("/quiz/mixed", response_class=HTMLResponse)
+def quiz_mixed(request: Request):
+    # mixed runner page (we'll implement runner behavior later; for now it uses cpt to avoid breaking)
+    # If you want true mixed, we can build it in build_quiz or add a new endpoint later.
+    return templates.TemplateResponse(
+        "quiz_mixed.html",
+        {"request": request, "title": "Mixed Quiz", "start_url": "/quiz/run/cpt?n=10&ui_lang=en"},
+    )
+
+
+@app.get("/quiz/run/{kind}", response_class=HTMLResponse)
+def quiz_run(request: Request, kind: str, n: int = 10, ui_lang: str = "en"):
+    kind = (kind or "").lower()
+    # accept icd10 in URL but run as icd internally
+    if kind == "icd10":
+        kind = "icd"
+    if kind not in ("cpt", "icd"):
+        kind = "cpt"
+
+    return templates.TemplateResponse(
+        "quiz_run.html",
+        {
+            "request": request,
+            "title": f"{kind.upper()} Quiz",
+            "kind": kind,
+            "kind_upper": ("ICD (Diagnosis)" if kind == "icd" else "CPT"),
+            "n": n,
+            "ui_lang": ui_lang,
+        },
+    )
+
+
+# ----------------------------
+# CASES Pages (HTML)
+# ----------------------------
+@app.get("/cases", response_class=HTMLResponse)
+def cases_home(request: Request):
+    return templates.TemplateResponse("cases_home.html", {"request": request, "title": "Cases"})
+
+
+@app.get("/cases/cpt", response_class=HTMLResponse)
+def cases_cpt(request: Request):
+    return templates.TemplateResponse(
+        "cases_cpt.html",
+        {"request": request, "title": "CPT Cases"},
+    )
+
+
+@app.get("/cases/icd10", response_class=HTMLResponse)
+def cases_icd10(request: Request):
+    return templates.TemplateResponse(
+        "cases_icd10.html",
+        {"request": request, "title": "ICD-10 Cases"},
+    )
+
+
+@app.get("/cases/mixed", response_class=HTMLResponse)
+def cases_mixed(request: Request):
+    return templates.TemplateResponse(
+        "cases_mixed.html",
+        {"request": request, "title": "Mixed Cases"},
+    )
+
+
+# ----------------------------
+# JSON APIs
+# ----------------------------
+
+# Quiz JSON API (keep this as the correct API)
+@app.get("/api/quiz/{kind}")
+def api_quiz(kind: str, n: int = 10):
+    df, k = _get_df(kind)
+    return build_quiz(df, k, n=n)
+
+
+# Simple search endpoints (optional aliases)
 @app.get("/search/cpt")
 def search_cpt(q: str = Query(..., min_length=1), limit: int = 10):
     if CPT_DF is None:
@@ -183,30 +238,11 @@ def search_icd(q: str = Query(..., min_length=1), limit: int = 10):
         raise HTTPException(status_code=500, detail="ICD data not loaded")
     return {"query": q, "results": free_search(ICD_DF, q, limit=limit, kind="icd")}
 
-@app.get("/dictionary", response_class=HTMLResponse)
-def dictionary_page(request: Request):
-    return templates.TemplateResponse("dictionary.html", {"request": request, "title": "Dictionary"})
 
-@app.get("/quiz/cpt", response_class=HTMLResponse)
-def quiz_cpt(request: Request):
-    return templates.TemplateResponse("quiz_cpt.html", {"request": request, "title": "CPT Quiz"})
-
-@app.get("/quiz/icd10", response_class=HTMLResponse)
-def quiz_icd10(request: Request):
-    return templates.TemplateResponse("quiz_icd10.html", {"request": request, "title": "ICD-10 Quiz"})
-
-@app.get("/cases", response_class=HTMLResponse)
-def cases_home(request: Request):
-    return templates.TemplateResponse("cases_home.html", {"request": request, "title": "Cases"})
-
-@app.get("/cases/cpt", response_class=HTMLResponse)
-def cases_cpt(request: Request):
-    return templates.TemplateResponse("cases_cpt.html", {"request": request, "title": "CPT Cases"})
-
-@app.get("/cases/icd10", response_class=HTMLResponse)
-def cases_icd10(request: Request):
-    return templates.TemplateResponse("cases_icd10.html", {"request": request, "title": "ICD-10 Cases"})
-
-@app.get("/cases/mixed", response_class=HTMLResponse)
-def cases_mixed(request: Request):
-    return templates.TemplateResponse("cases_mixed.html", {"request": request, "title": "Mixed Cases"})
+# (Optional) Legacy quiz JSON endpoint:
+# Keep it if anything still calls /quiz/{kind} expecting JSON.
+# If you are sure you don't need it, you can remove later.
+@app.get("/quiz_api/{kind}")
+def legacy_quiz_api(kind: str, n: int = 10):
+    df, k = _get_df(kind)
+    return build_quiz(df, k, n=n)
