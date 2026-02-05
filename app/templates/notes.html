@@ -1,30 +1,33 @@
 {% include "partials/header.html" %}
 <div class="card section" style="margin-top:18px">
-  <h3>Notes</h3>
-  <div class="small" style="margin-bottom:12px">Write quick study notes and save them.</div>
+  <h3 data-en="Notes" data-ar="الملاحظات">Notes</h3>
+  <div class="small" style="margin-bottom:12px" data-en="Write quick study notes and save them." data-ar="اكتب ملاحظات دراسية واحفظها.">
+    Write quick study notes and save them.
+  </div>
 
-  <textarea class="input" style="height:160px; resize:vertical" placeholder="Write your note..."></textarea>
+  <textarea class="input" id="noteBox" style="height:160px; resize:vertical" data-ph-en="Write your note..." data-ph-ar="اكتب ملاحظتك..." placeholder="Write your note..."></textarea>
+
   <div class="actions" style="margin-top:12px">
-    <button class="btn btnPrimary" type="button" onclick="saveNote()">Save</button>
-    <button class="btn btnGhost" type="button" onclick="clearNote()">Clear</button>
+    <button class="btn btnPrimary" type="button" onclick="saveNote()" data-en="Save" data-ar="حفظ">Save</button>
+    <button class="btn btnGhost" type="button" onclick="clearNote()" data-en="Clear" data-ar="مسح">Clear</button>
   </div>
 
   <div class="small" style="margin-top:12px" id="noteStatus"></div>
 </div>
 
 <script>
-  const key="tarmeez_note";
-  const ta = document.querySelector("textarea");
+  const key = "tarmeez_note";
+  const ta = document.getElementById("noteBox");
   ta.value = localStorage.getItem(key) || "";
 
   function saveNote(){
     localStorage.setItem(key, ta.value);
-    document.getElementById("noteStatus").textContent="Saved ✅";
+    document.getElementById("noteStatus").textContent = "Saved ✅";
   }
   function clearNote(){
-    ta.value="";
+    ta.value = "";
     localStorage.removeItem(key);
-    document.getElementById("noteStatus").textContent="Cleared ✅";
+    document.getElementById("noteStatus").textContent = "Cleared ✅";
   }
 </script>
 

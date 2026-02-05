@@ -1,23 +1,29 @@
 {% include "partials/header.html" %}
 
 <div class="card section" style="margin-top:18px">
-  <h3>Clinical Cases</h3>
-  <div class="small" style="margin-bottom:12px">Choose a set of cases and test yourself.</div>
+  <h3 data-en="Cases" data-ar="الحالات">Cases</h3>
+  <div class="small" style="margin-top:6px" data-en="Practice with scenario-based questions" data-ar="تدرب على أسئلة على شكل سيناريو">Practice with scenario-based questions</div>
 
-  <div class="grid">
-    <a class="card section" href="/cases/cpt">
-      <h4 style="margin:0 0 6px">CPT Cases</h4>
-      <div class="small">Procedure-focused scenarios</div>
+  <div class="grid" style="margin-top:14px">
+    <a class="cardLink" href="/cases/cpt">
+      <div class="card section">
+        <h4 style="margin:0 0 6px" data-en="CPT Cases" data-ar="حالات CPT">CPT Cases</h4>
+        <div class="small" data-en="Procedure-focused scenarios" data-ar="سيناريوهات تركز على الإجراءات">Procedure-focused scenarios</div>
+      </div>
     </a>
 
-    <a class="card section" href="/cases/icd10">
-      <h4 style="margin:0 0 6px">ICD-10 Cases</h4>
-      <div class="small">Diagnosis-focused scenarios</div>
+    <a class="cardLink" href="/cases/icd10">
+      <div class="card section">
+        <h4 style="margin:0 0 6px" data-en="ICD-10 Cases" data-ar="حالات ICD-10">ICD-10 Cases</h4>
+        <div class="small" data-en="Diagnosis-focused scenarios" data-ar="سيناريوهات تركز على التشخيص">Diagnosis-focused scenarios</div>
+      </div>
     </a>
 
-    <a class="card section" href="/cases/mixed">
-      <h4 style="margin:0 0 6px">Mixed Cases</h4>
-      <div class="small">Real-life coding cases</div>
+    <a class="cardLink" href="/cases/mixed">
+      <div class="card section">
+        <h4 style="margin:0 0 6px" data-en="Mixed Cases" data-ar="حالات متنوعة">Mixed Cases</h4>
+        <div class="small" data-en="Mix CPT + ICD in one flow" data-ar="دمج CPT و ICD في نفس التجربة">Mix CPT + ICD in one flow</div>
+      </div>
     </a>
   </div>
 </div>

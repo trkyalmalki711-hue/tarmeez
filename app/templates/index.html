@@ -1,151 +1,31 @@
 {% include "partials/header.html" %}
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ title or "Tarmeez" }}</title>
-  <link rel="stylesheet" href="/static/styles.css">
-</head>
 
-<body>
-  <div class="container">
-    <!-- Top Nav -->
-    <div class="nav card">
-      <div class="brand">
-        <div class="logo"></div>
-        <div>
-          <h1>Tarmeez</h1>
-          <p>CPT & ICD-10 Academy</p>
-        </div>
+<div class="card section" style="margin-top:18px">
+  <h3 data-en="Welcome to Tarmeez" data-ar="مرحبًا بك في ترميز">Welcome to Tarmeez</h3>
+  <div class="small" id="welcomeText" style="margin-top:6px"></div>
+
+  <div class="grid" style="margin-top:14px">
+    <a class="cardLink" href="/dictionary">
+      <div class="card section">
+        <h4 style="margin:0 0 6px" data-en="Dictionary" data-ar="القاموس">Dictionary</h4>
+        <div class="small" data-en="Search CPT & ICD quickly" data-ar="ابحث في CPT و ICD بسرعة">Search CPT & ICD quickly</div>
       </div>
+    </a>
 
-<div class="navlinks">
-  <a class="pill" href="/">Home</a>
-  <a class="pill" href="/cpt">CPT</a>
-  <a class="pill" href="/icd10">ICD-10</a>
-  <a class="pill" href="/dictionary">Dictionary</a>
-<a class="pill" href="/quiz">Quiz</a>
-<a class="pill" href="/cases">Cases</a>
+    <a class="cardLink" href="/quiz">
+      <div class="card section">
+        <h4 style="margin:0 0 6px" data-en="Quizzes" data-ar="كويزات">Quizzes</h4>
+        <div class="small" data-en="Practice question by question" data-ar="تدرب سؤال بسؤال">Practice question by question</div>
+      </div>
+    </a>
+
+    <a class="cardLink" href="/cases">
+      <div class="card section">
+        <h4 style="margin:0 0 6px" data-en="Clinical Cases" data-ar="حالات">Clinical Cases</h4>
+        <div class="small" data-en="Scenario-based learning" data-ar="تعلّم على شكل سيناريو">Scenario-based learning</div>
+      </div>
+    </a>
+  </div>
 </div>
 
-      <div class="langToggle">
-        <a class="pill" href="#" onclick="setLang('en'); return false;">English</a>
-        <a class="pill" href="#" onclick="setLang('ar'); return false;">العربية</a>
-      </div>
-    </div>
-
-    <!-- Hero -->
-    <div class="hero">
-      <div class="card heroMain">
-        <div class="kicker"><span class="dot"></span> Fast search • Clean UI • Made for students</div>
-        <h2>
-          Find the right <span>CPT</span> & <span>ICD-10</span> code—fast.
-        </h2>
-        <p id="heroText">
-          Search CPT and ICD-10 in one place. Clean results, quick lookup, and quizzes to help you master coding.
-        </p>
-
-        <div class="actions">
-<a class="btn btnPrimary" href="/cpt">Start searching</a>
-          <a class="btn btnGhost" href="/quiz">Try the quiz</a>
-        </div>
-
-        <div class="badges">
-          <span class="badge">CPT + ICD-10</span>
-          <span class="badge">Arabic/English</span>
-          <span class="badge">FastAPI</span>
-          <span class="badge">Render</span>
-        </div>
-      </div>
-
-      <div class="card heroSide">
-        <div class="statGrid">
-          <div class="stat">
-            <div class="n">⚡</div>
-            <div class="l">Instant search</div>
-          </div>
-          <div class="stat">
-            <div class="n">🎯</div>
-            <div class="l">Quiz practice</div>
-          </div>
-          <div class="stat">
-            <div class="n">📚</div>
-            <div class="l">Dictionary</div>
-          </div>
-          <div class="stat">
-            <div class="n">🧠</div>
-            <div class="l">Study-focused</div>
-          </div>
-        </div>
-
-        <div style="margin-top:12px" class="small">
-          Tip: On the free plan, the first visit after inactivity may take ~30–50 seconds to wake up.
-        </div>
-      </div>
-    </div>
-
-    <!-- Search Section -->
-    <div id="search" class="card section">
-      <h3 id="searchTitle">Search</h3>
-
-      <div class="grid">
-        <div>
-          <div class="small" style="margin-bottom:8px" id="cptLabel">CPT Search</div>
-          <input class="input" id="cptInput" placeholder="Search CPT..." />
-        </div>
-        <div>
-          <div class="small" style="margin-bottom:8px" id="icdLabel">ICD-10 Search</div>
-          <input class="input" id="icdInput" placeholder="Search ICD-10..." />
-        </div>
-      </div>
-
-      <div style="margin-top:12px" class="small" id="hint">
-        Results will show below (we’ll style them next).
-      </div>
-
-      <!-- Optional containers if your JS needs them -->
-      <div id="cptResults" style="margin-top:12px"></div>
-      <div id="icdResults" style="margin-top:12px"></div>
-    </div>
-
-    <div class="footer">
-      © <span id="yr"></span> Tarmeez • Built with FastAPI
-    </div>
-  </div>
-
-  <script>
-    document.getElementById("yr").textContent = new Date().getFullYear();
-
-    function setLang(lang){
-      if(lang === "ar"){
-        document.documentElement.lang = "ar";
-        document.body.dir = "rtl";
-        document.getElementById("heroText").textContent =
-          "ابحث عن أكواد CPT و ICD-10 بسرعة وبواجهة مرتبة. نتائج أوضح وكويز يساعدك تحفظ وتفهم.";
-        document.getElementById("searchTitle").textContent = "البحث";
-        document.getElementById("cptLabel").textContent = "بحث CPT";
-        document.getElementById("icdLabel").textContent = "بحث ICD-10";
-        document.getElementById("cptInput").placeholder = "ابحث في CPT...";
-        document.getElementById("icdInput").placeholder = "ابحث في ICD-10...";
-        document.getElementById("hint").textContent = "بتطلع النتائج تحت (بنرتّب شكلها الخطوة الجاية).";
-      }else{
-        document.documentElement.lang = "en";
-        document.body.dir = "ltr";
-        document.getElementById("heroText").textContent =
-          "Search CPT and ICD-10 in one place. Clean results, quick lookup, and quizzes to help you master coding.";
-        document.getElementById("searchTitle").textContent = "Search";
-        document.getElementById("cptLabel").textContent = "CPT Search";
-        document.getElementById("icdLabel").textContent = "ICD-10 Search";
-        document.getElementById("cptInput").placeholder = "Search CPT...";
-        document.getElementById("icdInput").placeholder = "Search ICD-10...";
-        document.getElementById("hint").textContent = "Results will show below (we’ll style them next).";
-      }
-    }
-  </script>
-
-  <!-- إذا عندك JS للبحث، خله يتنفذ هنا -->
-  <script src="/static/app.js"></script>
-</body>
-</html>
 {% include "partials/footer.html" %}

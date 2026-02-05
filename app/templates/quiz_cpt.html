@@ -1,16 +1,12 @@
 {% include "partials/header.html" %}
 
 <div class="card section" style="margin-top:18px">
-  <h3>CPT Quiz</h3>
-  <div class="small" style="margin-bottom:12px">Ready? Start a CPT quiz round.</div>
+  <h3 data-en="CPT Quiz" data-ar="كويز CPT">CPT Quiz</h3>
+  <div class="small" style="margin-top:6px" data-en="Generate a quiz from CPT data" data-ar="إنشاء كويز من بيانات CPT">Generate a quiz from CPT data</div>
 
-  <div class="actions">
-    <a class="btn btnPrimary" href="{{ start_url or '#' }}">Start CPT Quiz</a>
-    <a class="btn btnGhost" href="/quiz">Back</a>
-  </div>
-
-  <div class="small" style="margin-top:12px; color:var(--muted)">
-    If “Start” doesn’t open the quiz yet, we’ll connect it to your existing quiz route next.
+  <div style="margin-top:14px" class="actions">
+    <a class="btn btnPrimary" href="/quiz/run/cpt" data-en="Start CPT Quiz" data-ar="ابدأ كويز CPT">Start CPT Quiz</a>
+    <a class="btn btnGhost" href="/quiz" data-en="Back" data-ar="رجوع">Back</a>
   </div>
 </div>
 

@@ -1,23 +1,29 @@
 {% include "partials/header.html" %}
 
 <div class="card section" style="margin-top:18px">
-  <h3>Choose a Quiz</h3>
-  <div class="small" style="margin-bottom:12px">Pick a category and start practicing.</div>
+  <h3 data-en="Quizzes" data-ar="الكويزات">Quizzes</h3>
+  <div class="small" style="margin-top:6px" data-en="Choose a quiz type" data-ar="اختر نوع الكويز">Choose a quiz type</div>
 
-  <div class="grid">
-    <a class="card section" href="/quiz/cpt">
-      <h4 style="margin:0 0 6px">CPT Quiz</h4>
-      <div class="small">Procedure coding practice</div>
+  <div class="grid" style="margin-top:14px">
+    <a class="cardLink" href="/quiz/cpt">
+      <div class="card section">
+        <h4 style="margin:0 0 6px" data-en="CPT Quiz" data-ar="كويز CPT">CPT Quiz</h4>
+        <div class="small" data-en="Practice procedure codes" data-ar="تدرب على أكواد الإجراءات">Practice procedure codes</div>
+      </div>
     </a>
 
-    <a class="card section" href="/quiz/icd10">
-      <h4 style="margin:0 0 6px">ICD-10 Quiz</h4>
-      <div class="small">Diagnosis coding practice</div>
+    <a class="cardLink" href="/quiz/icd10">
+      <div class="card section">
+        <h4 style="margin:0 0 6px" data-en="ICD-10 Quiz" data-ar="كويز ICD-10">ICD-10 Quiz</h4>
+        <div class="small" data-en="Practice diagnosis codes" data-ar="تدرب على أكواد التشخيص">Practice diagnosis codes</div>
+      </div>
     </a>
 
-    <a class="card section" href="/quiz/mixed">
-      <h4 style="margin:0 0 6px">Mixed Quiz</h4>
-      <div class="small">CPT + ICD-10 together</div>
+    <a class="cardLink" href="/quiz/run/cpt">
+      <div class="card section">
+        <h4 style="margin:0 0 6px" data-en="Start Now" data-ar="ابدأ الآن">Start Now</h4>
+        <div class="small" data-en="Classic mode (random)" data-ar="وضع كلاسيكي (عشوائي)">Classic mode (random)</div>
+      </div>
     </a>
   </div>
 </div>

@@ -1,0 +1,32 @@
+{% include "partials/header.html" %}
+
+<div class="card section" style="margin-top:18px">
+  <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap">
+    <div>
+      <h3>{{ kind_upper }} Quiz</h3>
+      <div class="small" data-en="Classic mode — pick the correct code" data-ar="وضع كلاسيكي — اختر الكود الصحيح">Classic mode — pick the correct code</div>
+    </div>
+
+    <div class="actions">
+      <div>
+        <div class="small" data-en="Questions" data-ar="عدد الأسئلة">Questions</div>
+        <input id="qCount" class="input" style="width:120px" type="number" min="5" max="50" value="{{ n }}" />
+      </div>
+      <button id="reloadBtn" class="btn btnGhost" type="button" data-en="Reload" data-ar="تحديث">Reload</button>
+    </div>
+  </div>
+
+  <div id="quizRoot" style="margin-top:14px">
+    <div class="small" data-en="Loading questions..." data-ar="جاري تحميل الأسئلة...">Loading questions...</div>
+  </div>
+
+  <div class="actions" style="margin-top:14px">
+    <button id="submitBtn" class="btn btnPrimary" type="button" data-en="Submit" data-ar="إرسال">Submit</button>
+    <div id="resultBox" class="small"></div>
+  </div>
+</div>
+
+<div id="quizConfig" data-kind="{{ kind }}" data-n="{{ n }}"></div>
+<script src="/static/js/quiz.js"></script>
+
+{% include "partials/footer.html" %}

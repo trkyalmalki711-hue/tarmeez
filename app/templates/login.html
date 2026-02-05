@@ -1,16 +1,20 @@
 {% include "partials/header.html" %}
 <div class="card section" style="margin-top:18px">
-  <h3>Login</h3>
-  <div class="small" style="margin-bottom:12px">Sign in to save notes and track progress.</div>
-
-  <input class="input" placeholder="Email" style="margin-bottom:10px">
-  <input class="input" placeholder="Password" type="password" style="margin-bottom:12px">
-
-  <div class="actions">
-    <button class="btn btnPrimary" type="button">Login</button>
-    <a class="btn btnGhost" href="/account">Create account</a>
+  <h3 data-en="Login" data-ar="تسجيل الدخول">Login</h3>
+  <div class="small" style="margin-bottom:12px" data-en="Sign in to save notes and track progress." data-ar="سجل دخولك لحفظ الملاحظات وتتبع تقدمك.">
+    Sign in to save notes and track progress.
   </div>
 
-  <div class="small" style="margin-top:12px">*(We will connect this to Supabase next.)*</div>
+  <input class="input" data-ph-en="Email" data-ph-ar="البريد الإلكتروني" placeholder="Email" style="margin-bottom:10px" />
+  <input class="input" type="password" data-ph-en="Password" data-ph-ar="كلمة المرور" placeholder="Password" style="margin-bottom:12px" />
+
+  <div class="actions">
+    <button class="btn btnPrimary" type="button" data-en="Login" data-ar="دخول">Login</button>
+    <a class="btn btnGhost" href="/account" data-en="Create account" data-ar="إنشاء حساب">Create account</a>
+  </div>
+
+  <div class="small" style="margin-top:12px" data-en="We will connect this to Supabase later." data-ar="بنربطها بـ Supabase لاحقًا.">
+    We will connect this to Supabase later.
+  </div>
 </div>
 {% include "partials/footer.html" %}

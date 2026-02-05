@@ -1,12 +1,13 @@
 {% include "partials/header.html" %}
 
 <div class="card section" style="margin-top:18px">
-  <h3>ICD-10 Quiz</h3>
-  <div class="small" style="margin-bottom:12px">Start an ICD-10 quiz round.</div>
+  <h3 data-en="ICD-10 Quiz" data-ar="كويز ICD-10">ICD-10 Quiz</h3>
+  <div class="small" style="margin-top:6px" data-en="Generate a quiz from ICD-10 data" data-ar="إنشاء كويز من بيانات ICD-10">Generate a quiz from ICD-10 data</div>
 
-  <div class="actions">
-    <a class="btn btnPrimary" href="{{ start_url or '#' }}">Start ICD-10 Quiz</a>
-    <a class="btn btnGhost" href="/quiz">Back</a>
+  <div style="margin-top:12px" class="actions">
+    <a class="btn btnPrimary" href="/quiz/run/icd? n=10" data-en="Start 10 Questions" data-ar="ابدأ 10 أسئلة">Start 10 Questions</a>
+    <a class="btn btnGhost" href="/quiz/run/icd?n=20" data-en="Start 20 Questions" data-ar="ابدأ 20 سؤال">Start 20 Questions</a>
+    <a class="btn btnGhost" href="/quiz" data-en="Back" data-ar="رجوع">Back</a>
   </div>
 </div>
 

@@ -1,13 +1,10 @@
 {% include "partials/header.html" %}
-
 <div class="card section" style="margin-top:18px">
-  <h3>Mixed Quiz</h3>
-  <div class="small" style="margin-bottom:12px">CPT + ICD-10 in one round.</div>
-
+  <h3 data-en="Mixed Quiz" data-ar="كويز مختلط">Mixed Quiz</h3>
+  <div class="small" style="margin-bottom:12px" data-en="CPT + ICD-10 together." data-ar="CPT + ICD-10 مع بعض.">CPT + ICD-10 together.</div>
   <div class="actions">
-    <a class="btn btnPrimary" href="{{ start_url or '#' }}">Start Mixed Quiz</a>
-    <a class="btn btnGhost" href="/quiz">Back</a>
+    <a class="btn btnPrimary" href="{{ start_url or '/quiz/run/cpt?n=10&ui_lang=en' }}" data-en="Start" data-ar="ابدأ">Start</a>
+    <a class="btn btnGhost" href="/quiz" data-en="Back" data-ar="رجوع">Back</a>
   </div>
 </div>
-
 {% include "partials/footer.html" %}

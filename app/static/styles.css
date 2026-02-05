@@ -218,86 +218,81 @@ h4{ font-size: 16px; }
 body[dir="rtl"] .navlinks{ direction: rtl; }
 body[dir="rtl"] .brandText{ text-align: right; }
 
-/* RESET LINKS */
-a {
-  color: inherit;
-  text-decoration: none;
-}
+/* TARMEez_FIXES */
+/* prevent blue links */
+a{ color: inherit; text-decoration: none; }
+a:hover{ text-decoration: none; }
 
-/* HEADER */
-.app-header {
-  background: linear-gradient(135deg, #2b1f4a, #0f172a);
-  border-radius: 20px;
-  padding: 18px 28px;
-  margin: 24px;
-}
+/* clickable card links */
+a.cardLink{ display:block; }
+a.cardLink .card{ cursor:pointer; transition: transform .15s ease, border-color .15s ease; }
+a.cardLink:hover .card{ transform: translateY(-2px); border-color: rgba(255,255,255,.18); }
 
-.header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+/* Quiz styling to match dark theme (used by /static/js/quiz.js) */
+.qcard{ border:1px solid rgba(255,255,255,.10); background: rgba(0,0,0,.18); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+.qhead{ display:flex; gap:10px; align-items:flex-start; }
+.qnum{ font-weight:700; opacity:.85; }
+.qtext{ flex:1; }
+.opts{ display:grid; gap:8px; margin-top:10px; }
+.opt{ display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border-radius: 14px; border:1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.03); cursor:pointer; }
+.opt input{ margin-top: 4px; }
+.opt.ok{ border-color: rgba(52,211,153,.6); }
+.opt.bad{ border-color: rgba(251,113,133,.6); }
+.hintrow{ margin-top:8px; }
+.hintbox{ margin-top:8px; padding:10px 12px; border-radius: 14px; border:1px dashed rgba(255,255,255,.14); background: rgba(255,255,255,.03); }
+.score{ display:flex; align-items:baseline; gap:10px; }
+.score-big{ font-size: 22px; font-weight: 800; }
+.score-sub{ font-size: 12px; color: var(--muted); }
+.err{ color: var(--bad); }
 
-.brand {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-}
+/* ===== Fix blue links globally ===== */
+a { color: inherit; text-decoration: none; }
+a:hover { text-decoration: none; }
 
-.logo {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #6366f1, #22d3ee);
-}
+/* ===== Clickable card links ===== */
+a.cardLink{ display:block; color:inherit; text-decoration:none; }
+a.cardLink .card{ cursor:pointer; transition: transform .15s ease, border-color .15s ease; }
+a.cardLink:hover .card{ transform: translateY(-2px); border-color: rgba(255,255,255,.18); }
 
-.brand-title {
-  font-family: "Poppins", system-ui;
-  font-size: 20px;
+/* ===== Quiz (legacy quiz.js) minimal styling to match dark UI ===== */
+.qcard{
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+}
+.qhead{ display:flex; gap:10px; align-items:flex-start; }
+.qnum{
+  min-width: 44px;
+  height: 28px;
+  border-radius: 999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(109,91,255,.18);
+  border: 1px solid rgba(109,91,255,.35);
   font-weight: 700;
 }
-
-.brand-sub {
-  font-size: 12px;
-  opacity: 0.7;
-}
-
-/* NAV */
-.nav {
-  display: flex;
-  gap: 14px;
-}
-
-.nav a {
-  padding: 8px 14px;
-  border-radius: 999px;
-  font-size: 14px;
-  opacity: 0.85;
-}
-
-.nav a:hover,
-.nav a.active {
-  background: rgba(255,255,255,0.08);
-  opacity: 1;
-}
-
-/* ACTIONS */
-.actions {
-  display: flex;
-  gap: 10px;
-}
-
-.lang-btn {
-  background: rgba(255,255,255,0.08);
-  border: none;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 999px;
+.qtext{ font-weight: 600; }
+.opts{ margin-top: 10px; display:grid; gap:8px; }
+.opt{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.15);
   cursor: pointer;
 }
-
-.btn-outline {
-  border: 1px solid rgba(255,255,255,0.25);
-  padding: 6px 14px;
-  border-radius: 999px;
-}
+.opt input{ margin-top: 3px; }
+.opt.ok{ border-color: rgba(52,211,153,.45); background: rgba(52,211,153,.10); }
+.opt.bad{ border-color: rgba(251,113,133,.45); background: rgba(251,113,133,.10); }
+.hintrow{ margin-top: 10px; }
+.hintbtn{ font-size: 13px; }
+.hintbox{ margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); }
+.err{ color: var(--bad); }
+.score{ display:flex; gap:12px; align-items:baseline; }
+.score-big{ font-size: 26px; font-weight: 800; }
+.score-sub{ color: var(--muted); font-size: 13px; }

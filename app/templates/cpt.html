@@ -1,66 +1,54 @@
 {% include "partials/header.html" %}
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{ title }}</title>
-  <link rel="stylesheet" href="/static/styles.css">
-</head>
-<body>
-  <div class="container">
-    <div class="nav card">
-      <div class="brand">
-        <div class="logo"></div>
-        <div>
-          <h1>Tarmeez</h1>
-          <p>CPT & ICD-10 Academy</p>
-        </div>
-      </div>
 
-      <div class="navlinks">
-        <a class="pill" href="/">Home</a>
-        <a class="pill" href="/cpt">CPT</a>
-        <a class="pill" href="/icd10">ICD-10</a>
-        <a class="pill" href="/dictionary">Dictionary</a>
-        <a class="pill" href="/quiz">Quiz</a>
-      </div>
+<div class="card section" style="margin-top:18px">
+  <h3 data-en="CPT Search" data-ar="بحث CPT">CPT Search</h3>
+  <div class="small" style="margin-top:6px" data-en="Search by code or description" data-ar="ابحث بالكود أو الوصف">Search by code or description</div>
 
-      <div class="langToggle">
-        <a class="pill" href="#" onclick="setLang('en'); return false;">English</a>
-        <a class="pill" href="#" onclick="setLang('ar'); return false;">العربية</a>
-      </div>
-    </div>
-
-    <div class="card section" style="margin-top:18px">
-      <h3 id="title">CPT Search</h3>
-      <div class="small" id="subtitle" style="margin-bottom:10px">Search by code or description.</div>
-
-      <input class="input" id="cptInput" placeholder="Search CPT..." />
-      <div id="cptResults" style="margin-top:12px"></div>
-    </div>
-
-    <div class="footer">© <span id="yr"></span> Tarmeez</div>
+  <div style="margin-top:12px">
+    <input
+      class="input"
+      id="q"
+      type="text"
+      data-ph-en="Search CPT..."
+      data-ph-ar="ابحث في CPT..."
+      placeholder="Search CPT..."
+      oninput="searchCPT()"
+    />
   </div>
 
-  <script>
-    document.getElementById("yr").textContent = new Date().getFullYear();
-    function setLang(lang){
-      if(lang==="ar"){
-        document.documentElement.lang="ar"; document.body.dir="rtl";
-        document.getElementById("title").textContent="بحث CPT";
-        document.getElementById("subtitle").textContent="ابحث بالكود أو الوصف.";
-        document.getElementById("cptInput").placeholder="ابحث في CPT...";
-      } else {
-        document.documentElement.lang="en"; document.body.dir="ltr";
-        document.getElementById("title").textContent="CPT Search";
-        document.getElementById("subtitle").textContent="Search by code or description.";
-        document.getElementById("cptInput").placeholder="Search CPT...";
-      }
-    }
-  </script>
+  <div id="results" style="margin-top:14px"></div>
+</div>
 
-  <script src="/static/app.js"></script>
-</body>
-</html>
+<script>
+  let t=null;
+  async function searchCPT(){
+    clearTimeout(t);
+    t=setTimeout(async()=>{
+      const q=document.getElementById('q').value.trim();
+      if(q.length<2){ document.getElementById('results').innerHTML=''; return; }
+      try{
+        const res=await fetch(`/search/cpt?q=${encodeURIComponent(q)}&limit=10`);
+        const data=await res.json();
+        const items=(data.results||[]);
+        if(!items.length){
+          document.getElementById('results').innerHTML=`<div class="small" data-en="No results" data-ar="لا توجد نتائج">No results</div>`;
+          if(window.Tarmeez) window.Tarmeez.applyI18n?.();
+          return;
+        }
+        document.getElementById('results').innerHTML = items.map(r=>`
+          <div class="card section" style="margin-bottom:10px">
+            <div style="display:flex; justify-content:space-between; gap:12px">
+              <strong>${r.code}</strong>
+              <span class="small">CPT</span>
+            </div>
+            <div class="small" style="margin-top:6px">${r.description||''}</div>
+          </div>
+        `).join('');
+      }catch(e){
+        document.getElementById('results').innerHTML=`<div class="small" style="color:var(--bad)">Error loading results</div>`;
+      }
+    }, 250);
+  }
+</script>
+
 {% include "partials/footer.html" %}
