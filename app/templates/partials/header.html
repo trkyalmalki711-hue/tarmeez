@@ -22,46 +22,62 @@
       <div class="brand">
         <div class="logo" aria-hidden="true"></div>
         <div class="brandText">
+          <!-- اسم البرنامج (ثابت لا يترجم) -->
           <div class="brandTitle">ترميز | Tarmeez</div>
           <div class="brandSub">CPT & ICD-10 Academy</div>
         </div>
       </div>
 
       <nav class="navlinks" aria-label="Primary">
-        <a class="pill" href="/">Home</a>
-        <a class="pill" href="/cpt">CPT</a>
-        <a class="pill" href="/icd10">ICD-10</a>
-        <a class="pill" href="/dictionary">Dictionary</a>
-        <a class="pill" href="/quiz">Quiz</a>
-        <a class="pill" href="/cases">Cases</a>
-        <a class="pill" href="/notes">Notes</a>
-        <a class="pill" href="/about">About</a>
-        <a class="pill" href="/account">Account</a>
-        <a class="pill" href="/login">Login</a>
+        <a class="pill" href="/" data-en="Home" data-ar="الرئيسية">Home</a>
+        <a class="pill" href="/notes" data-en="Notes" data-ar="الملاحظات">Notes</a>
+        <a class="pill" href="/about" data-en="About" data-ar="حول البرنامج">About</a>
+        <a class="pill" href="/account" data-en="Account" data-ar="الحساب">Account</a>
+        <a class="pill" href="/login" data-en="Login" data-ar="تسجيل الدخول">Login</a>
       </nav>
 
       <div class="rightTools">
         <div class="langToggle" aria-label="Language">
-<button class="btn btnGhost" data-lang-btn="en" onclick="setLang('en')">English</button>
-<button class="btn btnGhost" data-lang-btn="ar" onclick="setLang('ar')">العربية</button>
+          <button class="btn btnGhost" onclick="setLang('en')">English</button>
+          <button class="btn btnGhost" onclick="setLang('ar')">العربية</button>
         </div>
       </div>
     </header>
 
+    <!-- ========== TRANSLATION (SAFE VERSION) ========== -->
     <script>
-      function setLang(lang){
-        if(lang === "ar"){
+      function translatePage(lang) {
+        // عناصر data-en / data-ar
+        document.querySelectorAll("[data-en][data-ar]").forEach(el => {
+          if (el.classList.contains("brandTitle")) return;
+          el.textContent = (lang === "ar") ? el.dataset.ar : el.dataset.en;
+        });
+
+        // placeholders
+        document.querySelectorAll("input[data-en][data-ar], textarea[data-en][data-ar]").forEach(el => {
+          el.placeholder = (lang === "ar") ? el.dataset.ar : el.dataset.en;
+        });
+      }
+
+      function setLang(lang) {
+        localStorage.setItem("tarmeez_lang", lang);
+
+        if (lang === "ar") {
           document.documentElement.lang = "ar";
           document.body.dir = "rtl";
-          localStorage.setItem("tarmeez_lang","ar");
         } else {
           document.documentElement.lang = "en";
           document.body.dir = "ltr";
-          localStorage.setItem("tarmeez_lang","en");
         }
+
+        // ترجمة فورية بدون إعادة تحميل
+        translatePage(lang);
       }
-      (function initLang(){
-        const saved = localStorage.getItem("tarmeez_lang");
-        if(saved){ setLang(saved); }
-      })();
+
+      // ترجمة عند أول تحميل فقط
+      document.addEventListener("DOMContentLoaded", () => {
+        const saved = localStorage.getItem("tarmeez_lang") || "en";
+        setLang(saved);
+      });
     </script>
+    <!-- ================================================ -->
