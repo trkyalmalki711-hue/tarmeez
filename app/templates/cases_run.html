@@ -1,0 +1,39 @@
+{% include "partials/header.html" %}
+
+<div class="card section" style="margin-top:18px">
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
+    <div>
+      <h3>Cases</h3>
+      <div class="small">Choose the most appropriate code</div>
+    </div>
+    <div class="small">
+      <span>Questions:</span> <strong>{{ n }}</strong>
+    </div>
+  </div>
+
+  <div class="card section" style="margin-top:14px; padding:14px; background:rgba(0,0,0,0.18);">
+    <div id="casesRoot">
+      <div class="small">Loading cases…</div>
+    </div>
+
+    <div class="actions" style="margin-top:14px; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap">
+      <div class="actions" style="gap:10px">
+        <button id="prevCases" class="btn btnGhost" type="button">Previous</button>
+        <button id="nextCases" class="btn btnPrimary" type="button">Next</button>
+        <button id="submitCases" class="btn btnPrimary" type="button">Submit</button>
+        <button id="reloadCases" class="btn btnGhost" type="button">Reload</button>
+      </div>
+
+      <div class="small" id="casesProgress"></div>
+      <div class="small" id="casesResult"></div>
+    </div>
+  </div>
+</div>
+
+<div id="casesConfig"
+     data-kind="{{ kind }}"
+     data-n="{{ n }}"></div>
+
+<script src="/static/app_cases.js"></script>
+
+{% include "partials/footer.html" %}
