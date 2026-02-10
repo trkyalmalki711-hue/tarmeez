@@ -1,25 +1,6 @@
-# Python
+﻿.venv/
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-
-# Virtual env
-.venv/
-venv/
-ENV/
-env/
-
-# OS / IDE
 .DS_Store
-Thumbs.db
-.vscode/
-.idea/
-
-# Logs
-*.log
-
-# Data exports (optional - لو تبغى ترفع الداتا شيل هالسطرين)
-# data/*.csv
-# data/*.json
+.env
+data/

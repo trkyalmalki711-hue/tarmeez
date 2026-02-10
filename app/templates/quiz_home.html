@@ -4,8 +4,8 @@
 
   <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px">
     <div>
-      <h3>Quiz</h3>
-      <div class="small">Choose difficulty and number of questions</div>
+      <h3 data-en="Quiz" data-ar="الكويز">Quiz</h3>
+      <div class="small" data-en="Choose difficulty and number of questions" data-ar="اختر الصعوبة وعدد الأسئلة">Choose difficulty and number of questions</div>
     </div>
   </div>
 
@@ -18,30 +18,30 @@
   ">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
       <div>
-        <strong>CPT Quiz</strong>
-        <div class="small">Interactive quiz from CPT data</div>
+        <strong data-en="CPT Quiz" data-ar="كويز CPT">CPT Quiz</strong>
+        <div class="small" data-en="Interactive quiz from CPT data" data-ar="كويز تفاعلي من بيانات CPT">Interactive quiz from CPT data</div>
       </div>
     </div>
 
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px">
       <div>
-        <div class="small" style="margin-bottom:6px">Difficulty</div>
+        <div class="small" style="margin-bottom:6px" data-en="Difficulty" data-ar="الصعوبة">Difficulty</div>
         <select id="cptDifficulty" class="input" style="background:rgba(0,0,0,0.22);">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
+          <option value="easy" data-en="Easy" data-ar="سهل">Easy</option>
+          <option value="medium" selected data-en="Medium" data-ar="متوسط">Medium</option>
+          <option value="hard" data-en="Hard" data-ar="صعب">Hard</option>
         </select>
       </div>
 
       <div>
-        <div class="small" style="margin-bottom:6px">Number of Questions</div>
+        <div class="small" style="margin-bottom:6px" data-en="Number of Questions" data-ar="عدد الأسئلة">Number of Questions</div>
         <input id="cptCount" class="input" type="number" min="5" max="50" value="10"
                style="background:rgba(0,0,0,0.22);" />
       </div>
     </div>
 
     <div class="actions" style="margin-top:14px; gap:10px">
-      <button class="btn btnPrimary" type="button" onclick="startQuiz('cpt')">Start CPT Quiz</button>
+      <button class="btn btnPrimary" type="button" onclick="startQuiz('cpt')"><span data-en="Start CPT Quiz" data-ar="ابدأ كويز CPT">Start CPT Quiz</span></button>
     </div>
   </div>
 
@@ -54,30 +54,30 @@
   ">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
       <div>
-        <strong>ICD Quiz</strong>
-        <div class="small">Interactive quiz from ICD-10 data</div>
+        <strong data-en="ICD Quiz" data-ar="كويز ICD">ICD Quiz</strong>
+        <div class="small" data-en="Interactive quiz from ICD-10 data" data-ar="كويز تفاعلي من بيانات ICD-10">Interactive quiz from ICD-10 data</div>
       </div>
     </div>
 
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px">
       <div>
-        <div class="small" style="margin-bottom:6px">Difficulty</div>
+        <div class="small" style="margin-bottom:6px" data-en="Difficulty" data-ar="الصعوبة">Difficulty</div>
         <select id="icdDifficulty" class="input" style="background:rgba(0,0,0,0.22);">
-          <option value="easy">Easy</option>
-          <option value="medium" selected>Medium</option>
-          <option value="hard">Hard</option>
+          <option value="easy" data-en="Easy" data-ar="سهل">Easy</option>
+          <option value="medium" selected data-en="Medium" data-ar="متوسط">Medium</option>
+          <option value="hard" data-en="Hard" data-ar="صعب">Hard</option>
         </select>
       </div>
 
       <div>
-        <div class="small" style="margin-bottom:6px">Number of Questions</div>
+        <div class="small" style="margin-bottom:6px" data-en="Number of Questions" data-ar="عدد الأسئلة">Number of Questions</div>
         <input id="icdCount" class="input" type="number" min="5" max="50" value="10"
                style="background:rgba(0,0,0,0.22);" />
       </div>
     </div>
 
     <div class="actions" style="margin-top:14px; gap:10px">
-      <button class="btn btnPrimary" type="button" onclick="startQuiz('icd')">Start ICD Quiz</button>
+      <button class="btn btnPrimary" type="button" onclick="startQuiz('icd')"><span data-en="Start ICD Quiz" data-ar="ابدأ كويز ICD">Start ICD Quiz</span></button>
     </div>
   </div>
 

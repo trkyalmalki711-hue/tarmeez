@@ -4,8 +4,8 @@
 
   <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px">
     <div>
-      <h3>Cases</h3>
-      <div class="small">Choose number of cases and start</div>
+      <h3 data-en="Cases" data-ar="الحالات">Cases</h3>
+      <div class="small" data-en="Choose number of cases and start" data-ar="اختر عدد الحالات وابدأ">Choose number of cases and start</div>
     </div>
   </div>
 
@@ -18,21 +18,21 @@
   ">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
       <div>
-        <strong>CPT Cases</strong>
-        <div class="small">Scenario questions from CPT data</div>
+        <strong data-en="CPT Cases" data-ar="حالات CPT">CPT Cases</strong>
+        <div class="small" data-en="Scenario questions from CPT data" data-ar="أسئلة سيناريو من بيانات CPT">Scenario questions from CPT data</div>
       </div>
     </div>
 
     <div style="display:grid; grid-template-columns: 1fr; gap:12px; margin-top:12px; max-width:320px">
       <div>
-        <div class="small" style="margin-bottom:6px">Number of Cases</div>
+        <div class="small" style="margin-bottom:6px" data-en="Number of Cases" data-ar="عدد الحالات">Number of Cases</div>
         <input id="cptCasesCount" class="input" type="number" min="5" max="50" value="10"
                style="background:rgba(0,0,0,0.22);" />
       </div>
     </div>
 
     <div class="actions" style="margin-top:14px; gap:10px">
-      <button class="btn btnPrimary" type="button" onclick="startCases('cpt')">Start CPT Cases</button>
+      <button class="btn btnPrimary" type="button" onclick="startCases('cpt')"><span data-en="Start CPT Cases" data-ar="ابدأ حالات CPT">Start CPT Cases</span></button>
     </div>
   </div>
 
@@ -45,21 +45,21 @@
   ">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
       <div>
-        <strong>ICD Cases</strong>
-        <div class="small">Scenario questions from ICD-10 data</div>
+        <strong data-en="ICD Cases" data-ar="حالات ICD">ICD Cases</strong>
+        <div class="small" data-en="Scenario questions from ICD-10 data" data-ar="أسئلة سيناريو من بيانات ICD-10">Scenario questions from ICD-10 data</div>
       </div>
     </div>
 
     <div style="display:grid; grid-template-columns: 1fr; gap:12px; margin-top:12px; max-width:320px">
       <div>
-        <div class="small" style="margin-bottom:6px">Number of Cases</div>
+        <div class="small" style="margin-bottom:6px" data-en="Number of Cases" data-ar="عدد الحالات">Number of Cases</div>
         <input id="icdCasesCount" class="input" type="number" min="5" max="50" value="10"
                style="background:rgba(0,0,0,0.22);" />
       </div>
     </div>
 
     <div class="actions" style="margin-top:14px; gap:10px">
-      <button class="btn btnPrimary" type="button" onclick="startCases('icd')">Start ICD Cases</button>
+      <button class="btn btnPrimary" type="button" onclick="startCases('icd')"><span data-en="Start ICD Cases" data-ar="ابدأ حالات ICD">Start ICD Cases</span></button>
     </div>
   </div>
 

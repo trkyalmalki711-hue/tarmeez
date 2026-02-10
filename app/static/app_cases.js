@@ -1,5 +1,16 @@
 // app/static/app_cases.js
 document.addEventListener("DOMContentLoaded", async () => {
+  function getLang(){
+    try{
+      return (window.Tarmeez && Tarmeez.getLang) ? Tarmeez.getLang() : ((localStorage.getItem("tarmeez_lang")||"en")==="ar"?"ar":"en");
+    }catch(e){ return "en"; }
+  }
+  function t(en, ar){ return getLang()==="ar" ? ar : en; }
+  function onLangChange(fn){
+    window.addEventListener("tarmeez:lang", fn);
+    window.addEventListener("storage", (e)=>{ if(e.key==="tarmeez_lang") fn(); });
+  }
+
   const cfg = document.getElementById("casesConfig");
   const root = document.getElementById("casesRoot");
 
@@ -31,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function setButtons() {
     const total = data?.questions?.length || 0;
-    if (progress) progress.textContent = total ? `Case ${index + 1} / ${total}` : "";
+    if (progress) progress.textContent = total ? t(`Case ${index + 1} / ${total}`, `الحالة ${index + 1} / ${total}`) : "";
     if (btnPrev) btnPrev.disabled = (index <= 0);
     if (btnNext) btnNext.disabled = (index >= total - 1);
   }
@@ -40,7 +51,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const qs = data?.questions || [];
     const total = qs.length;
     if (!total) {
-      root.innerHTML = `<div class="small">No cases available.</div>`;
+      root.innerHTML = `<div class="small">t('No cases available.','لا توجد حالات متاحة.')</div>`;
       return;
     }
 
@@ -50,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     root.innerHTML = `
       <div class="card section" style="margin-bottom:12px; padding:14px; background:rgba(0,0,0,0.14);">
         <div style="display:flex; justify-content:space-between; gap:12px; align-items:center">
-          <strong>Case ${index + 1}</strong>
+          <strong>${t(`Case ${index + 1}`, `الحالة ${index + 1}`)}</strong>
           <span class="small">${esc(kind.toUpperCase())}</span>
         </div>
 
@@ -105,7 +116,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           row.style.outline = "1px solid rgba(0,255,160,0.25)";
           if (fb) {
             fb.style.display = "block";
-            fb.textContent = "Correct answer";
+            fb.textContent = "t('Correct answer','الإجابة الصحيحة')";
             fb.style.color = "rgba(0,255,160,0.9)";
           }
         } else if (chosenVal && val === chosenVal) {
@@ -113,7 +124,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           row.style.outline = "1px solid rgba(255,80,80,0.25)";
           if (fb) {
             fb.style.display = "block";
-            fb.textContent = "Your choice";
+            fb.textContent = "t('Your choice','اختيارك')";
             fb.style.color = "rgba(255,120,120,0.95)";
           }
         }
@@ -129,13 +140,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function loadCases() {
     graded = false;
     result.textContent = "";
-    root.innerHTML = `<div class="small">Loading cases…</div>`;
+    root.innerHTML = `<div class="small">${t('Loading cases','جاري تحميل الحالات')}…</div>`;
 
     const url = `/api/ai/cases/${encodeURIComponent(kind)}?n=${encodeURIComponent(n)}`;
     const res = await fetch(url);
 
     if (!res.ok) {
-      root.innerHTML = `<div class="small" style="color:var(--bad)">Cases API error: ${res.status}</div>`;
+      root.innerHTML = `<div class="small" style="color:var(--bad)">${t('Cases API error:','خطأ في API الحالات:')} ${res.status}</div>`;
       return;
     }
 
@@ -158,7 +169,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (picks[i] && picks[i] === q.answer) correct++;
     }
 
-    result.innerHTML = `<strong>${correct}</strong> / ${total} correct`;
+    result.innerHTML = `<strong>${correct}</strong> / ${total} ${t('correct','صحيح')}`;
     renderOne();
   }
 
@@ -180,5 +191,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   btnSubmit?.addEventListener("click", gradeAll);
   btnReload?.addEventListener("click", loadCases);
 
+  onLangChange(()=>{ renderOne(); setButtons(); });
   await loadCases();
 });

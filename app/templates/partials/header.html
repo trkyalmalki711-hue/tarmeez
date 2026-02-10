@@ -22,44 +22,27 @@
       <div class="brand">
         <div class="logo" aria-hidden="true"></div>
         <div class="brandText">
-          <div class="brandTitle">ترميز | Tarmeez</div>
-          <div class="brandSub">CPT & ICD-10 Academy</div>
+          <!-- اسم البرنامج ثابت: لا يترجم ولا يتحرك -->
+          <div class="brandTitle tarmeezBrandTitle" data-no-i18n="1"><span class="brand-en">Tarmeez</span><span class="brand-sep"> | </span><span class="brand-ar">ترميز</span></div>
+          <div class="brandSub" data-en="CPT & ICD-10 Academy" data-ar="أكاديمية CPT و ICD-10">CPT & ICD-10 Academy</div>
         </div>
       </div>
 
       <nav class="navlinks" aria-label="Primary">
-        <a class="pill" href="/">Home</a>
-        <a class="pill" href="/dictionary">Dictionary</a>
-        <a class="pill" href="/quiz">Quiz</a>
-        <a class="pill" href="/cases">Cases</a>
-        <a class="pill" href="/notes">Notes</a>
-        <a class="pill" href="/about">About</a>
-        <a class="pill" href="/account">Account</a>
-        <a class="pill" href="/login">Login</a>
+        <a class="pill" href="/" data-en="Home" data-ar="الرئيسية">Home</a>
+        <a class="pill" href="/dictionary" data-en="Dictionary" data-ar="القاموس">Dictionary</a>
+        <a class="pill" href="/quiz" data-en="Quiz" data-ar="الكويز">Quiz</a>
+        <a class="pill" href="/cases" data-en="Cases" data-ar="الحالات">Cases</a>
+        <a class="pill" href="/notes" data-en="Notes" data-ar="ملاحظات">Notes</a>
+        <a class="pill" href="/about" data-en="About" data-ar="عن البرنامج">About</a>
+        <a class="pill" href="/account" data-en="Account" data-ar="الحساب">Account</a>
+        <a class="pill" href="/login" data-en="Login" data-ar="تسجيل الدخول">Login</a>
       </nav>
 
       <div class="rightTools">
         <div class="langToggle" aria-label="Language">
-<button class="btn btnGhost" data-lang-btn="en" onclick="setLang('en')">English</button>
-<button class="btn btnGhost" data-lang-btn="ar" onclick="setLang('ar')">العربية</button>
+          <button class="btn btnGhost" data-lang-btn="en" onclick="Tarmeez.setLang('en')">English</button>
+          <button class="btn btnGhost" data-lang-btn="ar" onclick="Tarmeez.setLang('ar')">العربية</button>
         </div>
       </div>
     </header>
-
-    <script>
-      function setLang(lang){
-        if(lang === "ar"){
-          document.documentElement.lang = "ar";
-          document.body.dir = "rtl";
-          localStorage.setItem("tarmeez_lang","ar");
-        } else {
-          document.documentElement.lang = "en";
-          document.body.dir = "ltr";
-          localStorage.setItem("tarmeez_lang","en");
-        }
-      }
-      (function initLang(){
-        const saved = localStorage.getItem("tarmeez_lang");
-        if(saved){ setLang(saved); }
-      })();
-    </script>

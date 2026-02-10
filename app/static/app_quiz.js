@@ -1,5 +1,16 @@
 // app/static/app_quiz.js
 document.addEventListener("DOMContentLoaded", async () => {
+  function getLang(){
+    try{
+      return (window.Tarmeez && Tarmeez.getLang) ? Tarmeez.getLang() : ((localStorage.getItem("tarmeez_lang")||"en")==="ar"?"ar":"en");
+    }catch(e){ return "en"; }
+  }
+  function t(en, ar){ return getLang()==="ar" ? ar : en; }
+  function onLangChange(fn){
+    window.addEventListener("tarmeez:lang", fn);
+    window.addEventListener("storage", (e)=>{ if(e.key==="tarmeez_lang") fn(); });
+  }
+
   const cfg = document.getElementById("quizConfig");
   const root = document.getElementById("quizRoot");
 
@@ -34,7 +45,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function setButtons() {
     const total = data?.questions?.length || 0;
-    if (progress) progress.textContent = total ? `Question ${index + 1} / ${total}` : "";
+    if (progress) progress.textContent = total ? t(`Question ${index + 1} / ${total}`, `السؤال ${index + 1} / ${total}`) : "";
     if (btnPrev) btnPrev.disabled = (index <= 0);
     if (btnNext) btnNext.disabled = (index >= total - 1);
   }
@@ -43,7 +54,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const qs = data?.questions || [];
     const total = qs.length;
     if (!total) {
-      root.innerHTML = `<div class="small">No questions available.</div>`;
+      root.innerHTML = `<div class="small">t('No questions available.','لا توجد أسئلة متاحة.')</div>`;
       return;
     }
 
@@ -114,7 +125,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           row.style.outline = "1px solid rgba(0,255,160,0.25)";
           if (fb) {
             fb.style.display = "block";
-            fb.textContent = "Correct answer";
+            fb.textContent = "t('Correct answer','الإجابة الصحيحة')";
             fb.style.color = "rgba(0,255,160,0.9)";
           }
         } else if (chosenVal && val === chosenVal) {
@@ -122,7 +133,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           row.style.outline = "1px solid rgba(255,80,80,0.25)";
           if (fb) {
             fb.style.display = "block";
-            fb.textContent = "Your choice";
+            fb.textContent = "t('Your choice','اختيارك')";
             fb.style.color = "rgba(255,120,120,0.95)";
           }
         }
@@ -139,13 +150,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function loadQuiz() {
     graded = false;
     result.textContent = "";
-    root.innerHTML = `<div class="small">Loading questions…</div>`;
+    root.innerHTML = `<div class="small">${t('Loading questions','جاري تحميل الأسئلة')}…</div>`;
 
     const url = `/api/quiz/${encodeURIComponent(kind)}?n=${encodeURIComponent(n)}&difficulty=${encodeURIComponent(difficulty)}`;
     const res = await fetch(url);
 
     if (!res.ok) {
-      root.innerHTML = `<div class="small" style="color:var(--bad)">Quiz API error: ${res.status}</div>`;
+      root.innerHTML = `<div class="small" style="color:var(--bad)">${t('Quiz API error:','خطأ في API الكويز:')} ${res.status}</div>`;
       return;
     }
 
@@ -170,7 +181,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (picks[i] && picks[i] === q.answer) correct++;
     }
 
-    result.innerHTML = `<strong>${correct}</strong> / ${total} correct`;
+    result.innerHTML = `<strong>${correct}</strong> / ${total} ${t('correct','صحيح')}`;
     renderOne(); // يعرض feedback للسؤال الحالي
   }
 
@@ -192,5 +203,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   btnSubmit?.addEventListener("click", gradeAll);
   btnReload?.addEventListener("click", loadQuiz);
 
+  onLangChange(()=>{ renderOne(); setButtons(); });
   await loadQuiz();
 });

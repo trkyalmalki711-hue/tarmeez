@@ -4,13 +4,13 @@
 
   <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px">
     <div>
-      <h3>Dictionary</h3>
-      <div class="small">Browse & search CPT / ICD with expandable lists</div>
+      <h3 data-en="Dictionary" data-ar="القاموس">Dictionary</h3>
+      <div class="small" data-en="Browse & search CPT / ICD with expandable lists" data-ar="تصفح وابحث في CPT / ICD بقوائم قابلة للفتح">Browse & search CPT / ICD with expandable lists</div>
     </div>
 
     <div class="actions">
-      <button id="btn-cpt" class="btn btnPrimary" onclick="setKind('cpt')">CPT</button>
-      <button id="btn-icd" class="btn btnGhost" onclick="setKind('icd')">ICD</button>
+      <button id="btn-cpt" class="btn btnPrimary" onclick="setKind('cpt')" data-no-i18n="1">CPT</button>
+      <button id="btn-icd" class="btn btnGhost" onclick="setKind('icd')" data-no-i18n="1">ICD</button>
     </div>
   </div>
 
@@ -20,7 +20,7 @@
       id="q"
       class="input"
       type="text"
-      placeholder="Search code or description..."
+      data-ph-en="Search code or description..." data-ph-ar="ابحث بالكود أو الوصف..." placeholder="Search code or description..."
       oninput="applyAll()"
     >
   </div>
@@ -39,7 +39,7 @@
       <option value="">All Ranges</option>
     </select>
 
-    <button class="btn btnGhost" onclick="resetFilters()">Reset</button>
+    <button class="btn btnGhost" onclick="resetFilters()" data-en="Reset" data-ar="إعادة ضبط">Reset</button>
   </div>
 
   <!-- ICD Filters -->
@@ -52,7 +52,7 @@
       <option value="">All Blocks</option>
     </select>
 
-    <button class="btn btnGhost" onclick="resetFilters()">Reset</button>
+    <button class="btn btnGhost" onclick="resetFilters()" data-en="Reset" data-ar="إعادة ضبط">Reset</button>
   </div>
 
   <div id="results" style="margin-top:16px"></div>
@@ -61,6 +61,14 @@
 
 <script>
   let kind = "cpt";
+
+  function getLang(){
+    try { return (window.Tarmeez && Tarmeez.getLang) ? Tarmeez.getLang() : ((localStorage.getItem("tarmeez_lang")||"en")==="ar"?"ar":"en"); }
+    catch(e){ return "en"; }
+  }
+  function t(en, ar){ return getLang()==="ar" ? ar : en; }
+  function applyI18nNow(){ try{ window.Tarmeez && Tarmeez.applyI18n && Tarmeez.applyI18n(); }catch(e){} }
+
 
   // Raw tree data (as loaded)
   let CPT_TREE = null;
@@ -138,13 +146,13 @@
   }
 
   // ---------- Populate dropdowns ----------
-  function fillSelect(id, items, allLabel){
+  function fillSelect(id, items, allKey){
     const el = document.getElementById(id);
     const current = el.value;
     el.innerHTML = "";
     const optAll = document.createElement("option");
     optAll.value = "";
-    optAll.textContent = allLabel;
+    optAll.textContent = t(allKey.en, allKey.ar);
     el.appendChild(optAll);
 
     for(const it of items){
@@ -156,6 +164,7 @@
 
     // keep value if still exists
     el.value = current;
+    applyI18nNow();
   }
 
   function uniqSorted(values){
@@ -174,7 +183,7 @@
       label: c.category || ""
     })).filter(x => x.value);
 
-    fillSelect("cpt-category", categories, "All Categories");
+    fillSelect("cpt-category", categories, {en:"All Categories", ar:"كل التصنيفات"});
 
     // sections/ranges depend on chosen category
     onCptCategoryChange(false);
@@ -187,7 +196,7 @@
     if(catVal) relevant = relevant.filter(x => x.category === catVal);
 
     const sections = uniqSorted(relevant.map(x => x.section)).map(s => ({ value: s, label: s }));
-    fillSelect("cpt-section", sections, "All Sections");
+    fillSelect("cpt-section", sections, {en:"All Sections", ar:"كل الأقسام"});
 
     // range depends on chosen cat+section
     onCptSectionChange(false);
@@ -204,7 +213,7 @@
     if(secVal) relevant = relevant.filter(x => x.section === secVal);
 
     const ranges = uniqSorted(relevant.map(x => x.range)).map(r => ({ value: r, label: r }));
-    fillSelect("cpt-range", ranges, "All Ranges");
+    fillSelect("cpt-range", ranges, {en:"All Ranges", ar:"كل النطاقات"});
 
     if(doApply) applyAll();
   }
@@ -218,7 +227,7 @@
       return { value: ch.chapter || "", label: label };
     }).filter(x => x.value);
 
-    fillSelect("icd-chapter", chapters, "All Chapters");
+    fillSelect("icd-chapter", chapters, {en:"All Chapters", ar:"كل الفصول"});
     onIcdChapterChange(false);
   }
 
@@ -229,7 +238,7 @@
     if(chVal) relevant = relevant.filter(x => x.chapter === chVal);
 
     const blocks = uniqSorted(relevant.map(x => x.block)).map(b => ({ value: b, label: b }));
-    fillSelect("icd-block", blocks, "All Blocks");
+    fillSelect("icd-block", blocks, {en:"All Blocks", ar:"كل المجموعات"});
 
     if(doApply) applyAll();
   }
@@ -280,6 +289,7 @@
 
       const tree = rebuildCptTree(rows);
       document.getElementById("results").innerHTML = renderCptTree(tree);
+      applyI18nNow();
 
     } else {
       const chVal = document.getElementById("icd-chapter").value;
@@ -300,6 +310,7 @@
 
       const tree = rebuildIcdTree(rows);
       document.getElementById("results").innerHTML = renderIcdTree(tree);
+      applyI18nNow();
     }
   }
 
@@ -402,14 +413,14 @@
   // ---------- Render (ALL CLOSED by default) ----------
   function renderCptTree(tree){
     if(!tree || tree.length === 0){
-      return `<div class="small">No results found</div>`;
+      return `<div class="small">${t("No results found","لا توجد نتائج")}</div>`;
     }
 
     return tree.map(cat => `
       <details class="card section" style="margin-bottom:10px">
         <summary style="cursor:pointer; display:flex; justify-content:space-between; gap:12px">
           <strong>${cat.category}</strong>
-          <span class="small">${countCpt(cat)} codes</span>
+          <span class="small">${countCpt(cat)} ${t("codes","كود")}</span>
         </summary>
 
         <div style="margin-top:10px">
@@ -417,7 +428,7 @@
             <details class="card section" style="margin-bottom:10px">
               <summary style="cursor:pointer; display:flex; justify-content:space-between; gap:12px">
                 <strong>${sec.section}</strong>
-                <span class="small">${sec.range ? sec.range + " • " : ""}${sec.codes.length} codes</span>
+                <span class="small">${sec.range ? sec.range + " • " : ""}${sec.codes.length} ${t("codes","كود")}</span>
               </summary>
 
               <div style="margin-top:10px">
@@ -425,7 +436,7 @@
                   <div class="card section" style="margin-bottom:10px">
                     <div style="display:flex; justify-content:space-between; gap:12px">
                       <strong>${c.code}</strong>
-                      <span class="small">CPT</span>
+                      <span class="small" data-no-i18n="1">CPT</span>
                     </div>
                     <div class="small" style="margin-top:6px">${c.description || ""}</div>
                   </div>
@@ -446,7 +457,7 @@
 
   function renderIcdTree(tree){
     if(!tree || tree.length === 0){
-      return `<div class="small">No results found</div>`;
+      return `<div class="small">${t("No results found","لا توجد نتائج")}</div>`;
     }
 
     return tree.map(ch => {
@@ -456,7 +467,7 @@
         <details class="card section" style="margin-bottom:10px">
           <summary style="cursor:pointer; display:flex; justify-content:space-between; gap:12px">
             <strong>${title}${cls}</strong>
-            <span class="small">${countIcd(ch)} codes</span>
+            <span class="small">${countIcd(ch)} ${t("codes","كود")}</span>
           </summary>
 
           <div style="margin-top:10px">
@@ -464,7 +475,7 @@
               <details class="card section" style="margin-bottom:10px">
                 <summary style="cursor:pointer; display:flex; justify-content:space-between; gap:12px">
                   <strong>${bl.block}</strong>
-                  <span class="small">${bl.codes.length} codes</span>
+                  <span class="small">${bl.codes.length} ${t("codes","كود")}</span>
                 </summary>
 
                 <div style="margin-top:10px">
@@ -472,7 +483,7 @@
                     <div class="card section" style="margin-bottom:10px">
                       <div style="display:flex; justify-content:space-between; gap:12px">
                         <strong>${c.code}</strong>
-                        <span class="small">ICD</span>
+                        <span class="small" data-no-i18n="1">ICD</span>
                       </div>
                       <div class="small" style="margin-top:6px">${c.description || ""}</div>
                     </div>
@@ -514,9 +525,21 @@
       setKind("cpt");
     }catch(e){
       document.getElementById("results").innerHTML =
-        `<div class="small" style="color:var(--bad)">Failed to load data</div>`;
+        `<div class="small" style="color:var(--bad)">${t("Failed to load data","فشل تحميل البيانات")}</div>`;
     }
   }
+
+
+  window.addEventListener("tarmeez:lang", () => {
+    // re-render labels after language toggle
+    if (CPT_TREE && ICD_TREE) {
+      populateCptFilters();
+      populateIcdFilters();
+      applyAll();
+    } else {
+      applyI18nNow();
+    }
+  });
 
   init();
 </script>

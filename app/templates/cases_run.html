@@ -3,25 +3,25 @@
 <div class="card section" style="margin-top:18px">
   <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
     <div>
-      <h3>Cases</h3>
-      <div class="small">Choose the most appropriate code</div>
+      <h3 data-en="Cases" data-ar="الحالات">Cases</h3>
+      <div class="small" data-en="Choose the most appropriate code" data-ar="اختر الكود الأنسب">Choose the most appropriate code</div>
     </div>
     <div class="small">
-      <span>Questions:</span> <strong>{{ n }}</strong>
+      <span data-en="Questions:" data-ar="الأسئلة:">Questions:</span> <strong>{{ n }}</strong>
     </div>
   </div>
 
   <div class="card section" style="margin-top:14px; padding:14px; background:rgba(0,0,0,0.18);">
     <div id="casesRoot">
-      <div class="small">Loading cases…</div>
+      <div class="small"><span data-en="Loading cases" data-ar="جاري تحميل الحالات">Loading cases</span>…</div>
     </div>
 
     <div class="actions" style="margin-top:14px; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap">
       <div class="actions" style="gap:10px">
-        <button id="prevCases" class="btn btnGhost" type="button">Previous</button>
-        <button id="nextCases" class="btn btnPrimary" type="button">Next</button>
-        <button id="submitCases" class="btn btnPrimary" type="button">Submit</button>
-        <button id="reloadCases" class="btn btnGhost" type="button">Reload</button>
+        <button id="prevCases" class="btn btnGhost" type="button"><span data-en="Previous" data-ar="السابق">Previous</span></button>
+        <button id="nextCases" class="btn btnPrimary" type="button"><span data-en="Next" data-ar="التالي">Next</span></button>
+        <button id="submitCases" class="btn btnPrimary" type="button"><span data-en="Submit" data-ar="تسليم">Submit</span></button>
+        <button id="reloadCases" class="btn btnGhost" type="button"><span data-en="Reload" data-ar="إعادة تحميل">Reload</span></button>
       </div>
 
       <div class="small" id="casesProgress"></div>

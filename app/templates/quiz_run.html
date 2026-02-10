@@ -3,27 +3,27 @@
 <div class="card section" style="margin-top:18px">
   <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
     <div>
-      <h3>Quiz</h3>
-      <div class="small">Answer the questions below</div>
+      <h3 data-en="Quiz" data-ar="الكويز">Quiz</h3>
+      <div class="small" data-en="Answer the questions below" data-ar="جاوب على الأسئلة التالية">Answer the questions below</div>
     </div>
     <div class="small">
-      <span>Difficulty:</span> <strong>{{ difficulty }}</strong>
-      <span style="margin-left:10px">Questions:</span> <strong>{{ n }}</strong>
+      <span data-en="Difficulty:" data-ar="الصعوبة:">Difficulty:</span> <strong>{{ difficulty }}</strong>
+      <span style="margin-left:10px"><span data-en="Questions:" data-ar="الأسئلة:">Questions:</span></span> <strong>{{ n }}</strong>
     </div>
   </div>
 
   <!-- Wrapper أغمق -->
   <div class="card section" style="margin-top:14px; padding:14px; background:rgba(0,0,0,0.18);">
     <div id="quizRoot">
-      <div class="small">Loading questions…</div>
+      <div class="small"><span data-en="Loading questions" data-ar="جاري تحميل الأسئلة">Loading questions</span>…</div>
     </div>
 
     <div class="actions" style="margin-top:14px; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap">
       <div class="actions" style="gap:10px">
-        <button id="prevQuiz" class="btn btnGhost" type="button">Previous</button>
-        <button id="nextQuiz" class="btn btnPrimary" type="button">Next</button>
-        <button id="submitQuiz" class="btn btnPrimary" type="button">Submit</button>
-        <button id="reloadQuiz" class="btn btnGhost" type="button">Reload</button>
+        <button id="prevQuiz" class="btn btnGhost" type="button"><span data-en="Previous" data-ar="السابق">Previous</span></button>
+        <button id="nextQuiz" class="btn btnPrimary" type="button"><span data-en="Next" data-ar="التالي">Next</span></button>
+        <button id="submitQuiz" class="btn btnPrimary" type="button"><span data-en="Submit" data-ar="تسليم">Submit</span></button>
+        <button id="reloadQuiz" class="btn btnGhost" type="button"><span data-en="Reload" data-ar="إعادة تحميل">Reload</span></button>
       </div>
 
       <div class="small" id="quizProgress"></div>

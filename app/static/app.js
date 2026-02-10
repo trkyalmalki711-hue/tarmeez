@@ -18,6 +18,7 @@
     localStorage.setItem(KEY, v);
     applyLang();     // apply immediately
     applyI18n();     // translate content
+    window.dispatchEvent(new CustomEvent('tarmeez:lang', { detail: { lang: getLang() } }));
   }
 
   function applyLang() {
@@ -42,11 +43,13 @@
 
     // Translate text content
     document.querySelectorAll("[data-en][data-ar]").forEach((el) => {
+      if (el.hasAttribute("data-no-i18n")) return;
       el.textContent = lang === "ar" ? el.dataset.ar : el.dataset.en;
     });
 
     // Translate placeholders
     document.querySelectorAll("[data-ph-en][data-ph-ar]").forEach((el) => {
+      if (el.hasAttribute("data-no-i18n")) return;
       el.setAttribute("placeholder", lang === "ar" ? el.dataset.phAr : el.dataset.phEn);
     });
 

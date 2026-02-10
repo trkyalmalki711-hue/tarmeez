@@ -296,3 +296,62 @@ a.cardLink:hover .card{ transform: translateY(-2px); border-color: rgba(255,255,
 .score{ display:flex; gap:12px; align-items:baseline; }
 .score-big{ font-size: 26px; font-weight: 800; }
 .score-sub{ color: var(--muted); font-size: 13px; }
+
+/* TARMEZ-PIN-HEADER-DIR */
+body[dir="rtl"] .nav.card{ direction:ltr; }
+body[dir="rtl"] .nav.card .brand{ direction:ltr; }
+body[dir="rtl"] .nav.card .brandTitle{ direction:ltr; unicode-bidi:isolate; white-space:nowrap; }
+/* خذ RTL للنصوص داخل الروابط فقط */
+body[dir="rtl"] .nav.card .navlinks{ direction:rtl; }
+
+/* الهدف: (ترميز | Tarmeez) يظل بنفس الترتيب دائمًا ولا ينعكس مع RTL */
+.brandTitle{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  white-space:nowrap !important;
+
+  direction:ltr !important;          /* يثبت ترتيب العناصر كما هو بالـHTML */
+  unicode-bidi:isolate !important;
+  flex-direction:row !important;
+}
+
+.brandTitle .brand-ar{
+  direction:rtl !important;          /* العربي يقرأ صح */
+  unicode-bidi:isolate !important;
+}
+
+.brandTitle .brand-en{
+  direction:ltr !important;          /* الإنجليزي يقرأ صح */
+  unicode-bidi:isolate !important;
+}
+
+.brandTitle .brand-sep{
+  opacity:.85 !important;
+}
+
+
+/* TARMEZ-BRAND-EN-LEFT-AR-RIGHT */
+/* الهدف: Tarmeez يسار + ترميز يمين داخل نفس العنوان */
+.tarmeezBrandTitle, .brandTitle.tarmeezBrandTitle{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  white-space:nowrap !important;
+  direction:ltr !important;          /* يثبت ترتيب العناصر كما هو بالـHTML */
+  unicode-bidi:isolate !important;
+}
+
+.tarmeezBrandTitle .brand-en{
+  direction:ltr !important;
+  unicode-bidi:isolate !important;
+}
+
+.tarmeezBrandTitle .brand-ar{
+  direction:rtl !important;
+  unicode-bidi:isolate !important;
+}
+
+.tarmeezBrandTitle .brand-sep{
+  opacity:.85 !important;
+}
