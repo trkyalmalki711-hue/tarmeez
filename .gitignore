@@ -1,28 +1,25 @@
-# ---- Python ----
+# Python
 __pycache__/
-*.py[cod]
+*.pyc
 *.pyo
 *.pyd
-*.so
-*.egg-info/
-dist/
-build/
+.Python
 
-# ---- Virtual env ----
+# Virtual env
 .venv/
 venv/
 ENV/
 env/
 
-# ---- OS / IDE ----
+# OS / IDE
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
 
-# ---- Logs ----
+# Logs
 *.log
 
-# ---- Local secrets ----
-.env
-.env.*
+# Data exports (optional - لو تبغى ترفع الداتا شيل هالسطرين)
+# data/*.csv
+# data/*.json

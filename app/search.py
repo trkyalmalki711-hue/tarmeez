@@ -1,97 +1,125 @@
-# app/search.py
 from __future__ import annotations
 
-import re
-from typing import Dict, Any, List
+from typing import Dict, List, Any, Optional
 import pandas as pd
 
 
-def _clean(s: str) -> str:
+def _norm(s: str) -> str:
     return (s or "").strip().lower()
 
 
-def _is_code_like(q: str) -> bool:
-    q = (q or "").strip()
-    return bool(re.match(r"^[A-Za-z]?\d[\dA-Za-z\.]{1,10}$", q))
+def _apply_filters(df: pd.DataFrame, filters: Dict[str, str]) -> pd.DataFrame:
+    out = df
+    for k, v in (filters or {}).items():
+        if v is None or str(v).strip() == "":
+            continue
+        if k not in out.columns:
+            continue
+        out = out[out[k].astype(str) == str(v)]
+    return out
 
 
-def free_search(df: pd.DataFrame, q: str, limit: int = 20, kind: str = "cpt") -> List[Dict[str, Any]]:
-    """
-    df requires: code, description
-    optional: keywords, section/chapter/domain
-    """
-    q_raw = (q or "").strip()
-    qn = _clean(q_raw)
-    if not qn or df is None or df.empty:
+def free_search(
+    df: pd.DataFrame,
+    q: str,
+    code_col: str = "code",
+    desc_col: str = "description",
+    keywords_col: str = "keywords",
+    meta_cols: Optional[List[str]] = None,
+    filters: Optional[Dict[str, str]] = None,
+    limit: int = 50,
+) -> List[Dict[str, Any]]:
+    if df is None or df.empty:
         return []
 
-    # ensure text columns
-    work = df.copy()
-    for col in ["code", "description"]:
-        if col not in work.columns:
-            return []
+    qn = _norm(q)
+    meta_cols = meta_cols or []
 
-    # optional columns
-    has_keywords = "keywords" in work.columns
-    has_section = "section" in work.columns
-    has_chapter = "chapter" in work.columns
-    has_domain = "domain" in work.columns
+    # 1) فلترة قبل البحث
+    filtered = _apply_filters(df, filters or {})
 
-    # build searchable field
-    desc = work["description"].astype(str).str.lower()
-    code = work["code"].astype(str).str.lower()
+    # 2) إذا ما فيه q، نرجّع أول نتائج بعد الفلترة
+    if qn == "":
+        filtered = filtered.head(limit)
+        results = []
+        for _, row in filtered.iterrows():
+            meta = {}
+            for c in meta_cols:
+                if c in filtered.columns:
+                    meta[c] = row.get(c, "")
+            results.append(
+                {
+                    "code": str(row.get(code_col, "")).strip(),
+                    "description": str(row.get(desc_col, "")).strip(),
+                    "meta": meta,
+                }
+            )
+        return results
 
-    if has_keywords:
-        kw = work["keywords"].astype(str).str.lower()
-        hay = code + " " + desc + " " + kw
-    else:
-        hay = code + " " + desc
+    # 3) بحث contains على code/description/keywords
+    code_s = filtered[code_col].astype(str).str.lower()
+    desc_s = filtered[desc_col].astype(str).str.lower()
+    key_s = filtered[keywords_col].astype(str).str.lower() if keywords_col in filtered.columns else desc_s
 
-    # scoring
-    #  - exact code match highest
-    #  - code startswith next
-    #  - substring match next
-    #  - word overlap next (simple)
-    is_code = _is_code_like(q_raw)
+    mask = (
+        code_s.str.contains(qn, na=False)
+        | desc_s.str.contains(qn, na=False)
+        | key_s.str.contains(qn, na=False)
+    )
 
-    scores = pd.Series(0, index=work.index, dtype="int")
+    matched = filtered[mask].copy()
 
-    if is_code:
-        qcode = qn.lower()
-        scores += (code == qcode) * 100
-        scores += code.str.startswith(qcode) * 40
-        scores += code.str.contains(re.escape(qcode), na=False) * 10
+    # ترتيب بسيط: الكود يبدأ بـ q ثم الوصف يحتوي q
+    starts = matched[code_col].astype(str).str.lower().str.startswith(qn)
+    in_desc = matched[desc_col].astype(str).str.lower().str.contains(qn, na=False)
 
-    # text match
-    scores += hay.str.contains(re.escape(qn), na=False) * 8
+    matched["_rank"] = 0
+    matched.loc[in_desc, "_rank"] = 1
+    matched.loc[starts, "_rank"] = 2
 
-    # token overlap (lightweight)
-    tokens = [t for t in re.split(r"\s+", qn) if len(t) >= 3]
-    for t in tokens[:6]:
-        scores += hay.str.contains(re.escape(t), na=False) * 2
+    matched = matched.sort_values(by=["_rank", code_col], ascending=[False, True]).head(limit)
 
-    # pick top
-    top = work.loc[scores.sort_values(ascending=False).head(limit).index].copy()
-    top_scores = scores.loc[top.index].tolist()
-
-    results: List[Dict[str, Any]] = []
-    for i, (_, row) in enumerate(top.iterrows()):
+    results = []
+    for _, row in matched.iterrows():
         meta = {}
-        if kind == "cpt" and has_section:
-            meta["section"] = "" if pd.isna(row.get("section")) else str(row.get("section"))
-        if kind == "icd":
-            if has_chapter:
-                meta["chapter"] = "" if pd.isna(row.get("chapter")) else str(row.get("chapter"))
-            if has_domain:
-                meta["domain"] = "" if pd.isna(row.get("domain")) else str(row.get("domain"))
-
-        results.append({
-            "code": "" if pd.isna(row["code"]) else str(row["code"]),
-            "description": "" if pd.isna(row["description"]) else str(row["description"]),
-            "score": int(top_scores[i]) if i < len(top_scores) else 0,
-            "meta": meta
-        })
-
-    # remove zero-score junk
-    results = [r for r in results if r["score"] > 0]
+        for c in meta_cols:
+            if c in matched.columns:
+                meta[c] = row.get(c, "")
+        results.append(
+            {
+                "code": str(row.get(code_col, "")).strip(),
+                "description": str(row.get(desc_col, "")).strip(),
+                "meta": meta,
+            }
+        )
     return results
+
+
+def get_unique_list(df: pd.DataFrame, col: str) -> List[str]:
+    if df is None or df.empty or col not in df.columns:
+        return []
+    vals = (
+        df[col]
+        .astype(str)
+        .map(lambda x: x.strip())
+        .loc[lambda s: s != ""]
+        .drop_duplicates()
+        .tolist()
+    )
+    vals.sort()
+    return vals
+
+
+def build_cpt_filters(df: pd.DataFrame) -> Dict[str, List[str]]:
+    return {
+        "categories": get_unique_list(df, "category"),
+        "sections": get_unique_list(df, "section"),
+        "ranges": get_unique_list(df, "range"),
+    }
+
+
+def build_icd_filters(df: pd.DataFrame) -> Dict[str, List[str]]:
+    return {
+        "chapters": get_unique_list(df, "chapter"),
+        "blocks": get_unique_list(df, "block"),
+    }

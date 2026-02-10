@@ -5,7 +5,7 @@
   <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px">
     <div>
       <h3>Dictionary</h3>
-      <div class="small">Search CPT & ICD codes with clean results</div>
+      <div class="small">Browse & search CPT / ICD with expandable lists</div>
     </div>
 
     <div class="actions">
@@ -14,14 +14,45 @@
     </div>
   </div>
 
+  <!-- Search -->
   <div style="margin-top:14px">
     <input
       id="q"
       class="input"
       type="text"
       placeholder="Search code or description..."
-      oninput="search()"
+      oninput="applyAll()"
     >
+  </div>
+
+  <!-- CPT Filters -->
+  <div id="filters-cpt" style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap">
+    <select id="cpt-category" class="input" onchange="onCptCategoryChange()">
+      <option value="">All Categories</option>
+    </select>
+
+    <select id="cpt-section" class="input" onchange="onCptSectionChange()">
+      <option value="">All Sections</option>
+    </select>
+
+    <select id="cpt-range" class="input" onchange="applyAll()">
+      <option value="">All Ranges</option>
+    </select>
+
+    <button class="btn btnGhost" onclick="resetFilters()">Reset</button>
+  </div>
+
+  <!-- ICD Filters -->
+  <div id="filters-icd" style="display:none; gap:10px; margin-top:10px; flex-wrap:wrap">
+    <select id="icd-chapter" class="input" onchange="onIcdChapterChange()">
+      <option value="">All Chapters</option>
+    </select>
+
+    <select id="icd-block" class="input" onchange="applyAll()">
+      <option value="">All Blocks</option>
+    </select>
+
+    <button class="btn btnGhost" onclick="resetFilters()">Reset</button>
   </div>
 
   <div id="results" style="margin-top:16px"></div>
@@ -30,55 +61,464 @@
 
 <script>
   let kind = "cpt";
-  let timer = null;
+
+  // Raw tree data (as loaded)
+  let CPT_TREE = null;
+  let ICD_TREE = null;
+
+  // Flat arrays to support fast search+filter
+  let CPT_FLAT = [];
+  let ICD_FLAT = [];
+
+  function norm(s){
+    return (s || "").toString().trim().toLowerCase();
+  }
 
   function setKind(k){
     kind = k;
+
+    document.getElementById("btn-cpt").className = (k === "cpt") ? "btn btnPrimary" : "btn btnGhost";
+    document.getElementById("btn-icd").className = (k === "icd") ? "btn btnPrimary" : "btn btnGhost";
+
+    document.getElementById("filters-cpt").style.display = (k === "cpt") ? "flex" : "none";
+    document.getElementById("filters-icd").style.display = (k === "icd") ? "flex" : "none";
+
+    // clear results and apply
     document.getElementById("results").innerHTML = "";
-    document.getElementById("btn-cpt").className =
-      k === "cpt" ? "btn btnPrimary" : "btn btnGhost";
-    document.getElementById("btn-icd").className =
-      k === "icd" ? "btn btnPrimary" : "btn btnGhost";
+    applyAll();
   }
 
-  function search(){
-    clearTimeout(timer);
-    timer = setTimeout(async () => {
-      const q = document.getElementById("q").value.trim();
-      if(q.length < 2){
-        document.getElementById("results").innerHTML = "";
-        return;
-      }
-
-      try{
-        const res = await fetch(`/search/${kind}?q=${encodeURIComponent(q)}`);
-        const data = await res.json();
-
-        if(!data.results || data.results.length === 0){
-          document.getElementById("results").innerHTML =
-            `<div class="small">No results found</div>`;
-          return;
+  // ---------- Build flat ----------
+  function buildCptFlat(tree){
+    const out = [];
+    for(const cat of (tree || [])){
+      const category = cat.category || "";
+      const category_no = cat.category_no ?? "";
+      for(const sec of (cat.sections || [])){
+        const section = sec.section || "";
+        const section_no = sec.section_no ?? "";
+        const range = sec.range || "";
+        for(const c of (sec.codes || [])){
+          out.push({
+            category, category_no,
+            section, section_no,
+            range,
+            code: c.code || "",
+            description: c.description || "",
+            keywords: c.keywords || ""
+          });
         }
-
-        document.getElementById("results").innerHTML =
-          data.results.map(r => `
-            <div class="card section" style="margin-bottom:10px">
-              <div style="display:flex; justify-content:space-between; gap:12px">
-                <strong>${r.code}</strong>
-                <span class="small">${kind.toUpperCase()}</span>
-              </div>
-              <div class="small" style="margin-top:6px">
-                ${r.description || ""}
-              </div>
-            </div>
-          `).join("");
-
-      }catch(e){
-        document.getElementById("results").innerHTML =
-          `<div class="small" style="color:var(--bad)">Error loading results</div>`;
       }
-    }, 300); // debounce
+    }
+    return out;
   }
+
+  function buildIcdFlat(tree){
+    const out = [];
+    for(const ch of (tree || [])){
+      const chapter = ch.chapter || "";
+      const chapter_no = ch.chapter_no ?? ch.no ?? "";
+      const classification = ch.classification ?? ch.range ?? "";
+      for(const bl of (ch.blocks || [])){
+        const block = bl.block || "";
+        const block_no = bl.block_no ?? bl.no ?? "";
+        const block_range = bl.range ?? "";
+        for(const c of (bl.codes || [])){
+          out.push({
+            chapter, chapter_no, classification,
+            block, block_no, block_range,
+            code: c.code || "",
+            description: c.description || "",
+            keywords: c.keywords || ""
+          });
+        }
+      }
+    }
+    return out;
+  }
+
+  // ---------- Populate dropdowns ----------
+  function fillSelect(id, items, allLabel){
+    const el = document.getElementById(id);
+    const current = el.value;
+    el.innerHTML = "";
+    const optAll = document.createElement("option");
+    optAll.value = "";
+    optAll.textContent = allLabel;
+    el.appendChild(optAll);
+
+    for(const it of items){
+      const op = document.createElement("option");
+      op.value = it.value;
+      op.textContent = it.label;
+      el.appendChild(op);
+    }
+
+    // keep value if still exists
+    el.value = current;
+  }
+
+  function uniqSorted(values){
+    const s = new Set();
+    for(const v of values){
+      const t = (v || "").toString().trim();
+      if(t) s.add(t);
+    }
+    return Array.from(s).sort((a,b) => a.localeCompare(b));
+  }
+
+  function populateCptFilters(){
+    // categories from tree
+    const categories = (CPT_TREE || []).map(c => ({
+      value: c.category || "",
+      label: c.category || ""
+    })).filter(x => x.value);
+
+    fillSelect("cpt-category", categories, "All Categories");
+
+    // sections/ranges depend on chosen category
+    onCptCategoryChange(false);
+  }
+
+  function onCptCategoryChange(doApply=true){
+    const catVal = document.getElementById("cpt-category").value;
+
+    let relevant = CPT_FLAT;
+    if(catVal) relevant = relevant.filter(x => x.category === catVal);
+
+    const sections = uniqSorted(relevant.map(x => x.section)).map(s => ({ value: s, label: s }));
+    fillSelect("cpt-section", sections, "All Sections");
+
+    // range depends on chosen cat+section
+    onCptSectionChange(false);
+
+    if(doApply) applyAll();
+  }
+
+  function onCptSectionChange(doApply=true){
+    const catVal = document.getElementById("cpt-category").value;
+    const secVal = document.getElementById("cpt-section").value;
+
+    let relevant = CPT_FLAT;
+    if(catVal) relevant = relevant.filter(x => x.category === catVal);
+    if(secVal) relevant = relevant.filter(x => x.section === secVal);
+
+    const ranges = uniqSorted(relevant.map(x => x.range)).map(r => ({ value: r, label: r }));
+    fillSelect("cpt-range", ranges, "All Ranges");
+
+    if(doApply) applyAll();
+  }
+
+  function populateIcdFilters(){
+    // chapters list from tree (include number if exists)
+    const chapters = (ICD_TREE || []).map(ch => {
+      const no = ch.chapter_no ?? ch.no ?? "";
+      const rng = ch.classification ?? ch.range ?? "";
+      const label = no ? `${no}. ${ch.chapter || ""}${rng ? " — " + rng : ""}` : `${ch.chapter || ""}${rng ? " — " + rng : ""}`;
+      return { value: ch.chapter || "", label: label };
+    }).filter(x => x.value);
+
+    fillSelect("icd-chapter", chapters, "All Chapters");
+    onIcdChapterChange(false);
+  }
+
+  function onIcdChapterChange(doApply=true){
+    const chVal = document.getElementById("icd-chapter").value;
+
+    let relevant = ICD_FLAT;
+    if(chVal) relevant = relevant.filter(x => x.chapter === chVal);
+
+    const blocks = uniqSorted(relevant.map(x => x.block)).map(b => ({ value: b, label: b }));
+    fillSelect("icd-block", blocks, "All Blocks");
+
+    if(doApply) applyAll();
+  }
+
+  function resetFilters(){
+    document.getElementById("q").value = "";
+
+    document.getElementById("cpt-category").value = "";
+    document.getElementById("cpt-section").value = "";
+    document.getElementById("cpt-range").value = "";
+
+    document.getElementById("icd-chapter").value = "";
+    document.getElementById("icd-block").value = "";
+
+    // repopulate dependent dropdowns
+    if(kind === "cpt") {
+      onCptCategoryChange(false);
+      onCptSectionChange(false);
+    } else {
+      onIcdChapterChange(false);
+    }
+
+    applyAll();
+  }
+
+  // ---------- Apply filters + search, then rebuild a tree for display ----------
+  function applyAll(){
+    const q = norm(document.getElementById("q").value);
+
+    if(kind === "cpt"){
+      const catVal = document.getElementById("cpt-category").value;
+      const secVal = document.getElementById("cpt-section").value;
+      const rngVal = document.getElementById("cpt-range").value;
+
+      let rows = CPT_FLAT;
+
+      if(catVal) rows = rows.filter(x => x.category === catVal);
+      if(secVal) rows = rows.filter(x => x.section === secVal);
+      if(rngVal) rows = rows.filter(x => x.range === rngVal);
+
+      if(q){
+        rows = rows.filter(x =>
+          norm(x.code).includes(q) ||
+          norm(x.description).includes(q) ||
+          norm(x.keywords).includes(q)
+        );
+      }
+
+      const tree = rebuildCptTree(rows);
+      document.getElementById("results").innerHTML = renderCptTree(tree);
+
+    } else {
+      const chVal = document.getElementById("icd-chapter").value;
+      const blVal = document.getElementById("icd-block").value;
+
+      let rows = ICD_FLAT;
+
+      if(chVal) rows = rows.filter(x => x.chapter === chVal);
+      if(blVal) rows = rows.filter(x => x.block === blVal);
+
+      if(q){
+        rows = rows.filter(x =>
+          norm(x.code).includes(q) ||
+          norm(x.description).includes(q) ||
+          norm(x.keywords).includes(q)
+        );
+      }
+
+      const tree = rebuildIcdTree(rows);
+      document.getElementById("results").innerHTML = renderIcdTree(tree);
+    }
+  }
+
+  function rebuildCptTree(rows){
+    // category -> section -> codes
+    const catMap = new Map();
+
+    for(const r of rows){
+      const catKey = r.category || "Unknown";
+      if(!catMap.has(catKey)){
+        catMap.set(catKey, { category: catKey, category_no: r.category_no ?? "", sections: [] , _secMap: new Map()});
+      }
+      const catObj = catMap.get(catKey);
+
+      const secKey = (r.section || "Other") + "||" + (r.range || "");
+      if(!catObj._secMap.has(secKey)){
+        catObj._secMap.set(secKey, {
+          section: r.section || "Other",
+          section_no: r.section_no ?? "",
+          range: r.range || "",
+          codes: []
+        });
+      }
+      catObj._secMap.get(secKey).codes.push({
+        code: r.code,
+        description: r.description,
+        keywords: r.keywords
+      });
+    }
+
+    const out = [];
+    for(const [k, catObj] of catMap.entries()){
+      catObj.sections = Array.from(catObj._secMap.values())
+        .sort((a,b) => (a.section_no||999) - (b.section_no||999) || a.section.localeCompare(b.section));
+
+      // sort codes inside section
+      for(const s of catObj.sections){
+        s.codes.sort((a,b) => a.code.localeCompare(b.code));
+      }
+
+      delete catObj._secMap;
+      out.push(catObj);
+    }
+
+    out.sort((a,b) => (a.category_no||999) - (b.category_no||999) || a.category.localeCompare(b.category));
+    return out;
+  }
+
+  function rebuildIcdTree(rows){
+    // chapter -> block -> codes
+    const chMap = new Map();
+
+    for(const r of rows){
+      const chKey = r.chapter || "Unknown Chapter";
+      if(!chMap.has(chKey)){
+        chMap.set(chKey, {
+          chapter: chKey,
+          chapter_no: r.chapter_no ?? "",
+          classification: r.classification ?? "",
+          blocks: [],
+          _blMap: new Map()
+        });
+      }
+      const chObj = chMap.get(chKey);
+
+      const blKey = (r.block || "Other Block") + "||" + (r.block_range || "");
+      if(!chObj._blMap.has(blKey)){
+        chObj._blMap.set(blKey, {
+          block: r.block || "Other Block",
+          block_no: r.block_no ?? "",
+          range: r.block_range || "",
+          codes: []
+        });
+      }
+
+      chObj._blMap.get(blKey).codes.push({
+        code: r.code,
+        description: r.description,
+        keywords: r.keywords
+      });
+    }
+
+    const out = [];
+    for(const [k, chObj] of chMap.entries()){
+      chObj.blocks = Array.from(chObj._blMap.values())
+        .sort((a,b) => (a.block_no||999) - (b.block_no||999) || a.block.localeCompare(b.block));
+
+      for(const b of chObj.blocks){
+        b.codes.sort((a,b2) => a.code.localeCompare(b2.code));
+      }
+
+      delete chObj._blMap;
+      out.push(chObj);
+    }
+
+    out.sort((a,b) => (a.chapter_no||999) - (b.chapter_no||999) || a.chapter.localeCompare(b.chapter));
+    return out;
+  }
+
+  // ---------- Render (ALL CLOSED by default) ----------
+  function renderCptTree(tree){
+    if(!tree || tree.length === 0){
+      return `<div class="small">No results found</div>`;
+    }
+
+    return tree.map(cat => `
+      <details class="card section" style="margin-bottom:10px">
+        <summary style="cursor:pointer; display:flex; justify-content:space-between; gap:12px">
+          <strong>${cat.category}</strong>
+          <span class="small">${countCpt(cat)} codes</span>
+        </summary>
+
+        <div style="margin-top:10px">
+          ${(cat.sections || []).map(sec => `
+            <details class="card section" style="margin-bottom:10px">
+              <summary style="cursor:pointer; display:flex; justify-content:space-between; gap:12px">
+                <strong>${sec.section}</strong>
+                <span class="small">${sec.range ? sec.range + " • " : ""}${sec.codes.length} codes</span>
+              </summary>
+
+              <div style="margin-top:10px">
+                ${(sec.codes || []).map(c => `
+                  <div class="card section" style="margin-bottom:10px">
+                    <div style="display:flex; justify-content:space-between; gap:12px">
+                      <strong>${c.code}</strong>
+                      <span class="small">CPT</span>
+                    </div>
+                    <div class="small" style="margin-top:6px">${c.description || ""}</div>
+                  </div>
+                `).join("")}
+              </div>
+            </details>
+          `).join("")}
+        </div>
+      </details>
+    `).join("");
+  }
+
+  function countCpt(cat){
+    let n = 0;
+    for(const s of (cat.sections || [])) n += (s.codes || []).length;
+    return n;
+  }
+
+  function renderIcdTree(tree){
+    if(!tree || tree.length === 0){
+      return `<div class="small">No results found</div>`;
+    }
+
+    return tree.map(ch => {
+      const title = (ch.chapter_no ? `${ch.chapter_no}. ` : "") + (ch.chapter || "");
+      const cls = ch.classification ? ` — ${ch.classification}` : "";
+      return `
+        <details class="card section" style="margin-bottom:10px">
+          <summary style="cursor:pointer; display:flex; justify-content:space-between; gap:12px">
+            <strong>${title}${cls}</strong>
+            <span class="small">${countIcd(ch)} codes</span>
+          </summary>
+
+          <div style="margin-top:10px">
+            ${(ch.blocks || []).map(bl => `
+              <details class="card section" style="margin-bottom:10px">
+                <summary style="cursor:pointer; display:flex; justify-content:space-between; gap:12px">
+                  <strong>${bl.block}</strong>
+                  <span class="small">${bl.codes.length} codes</span>
+                </summary>
+
+                <div style="margin-top:10px">
+                  ${(bl.codes || []).map(c => `
+                    <div class="card section" style="margin-bottom:10px">
+                      <div style="display:flex; justify-content:space-between; gap:12px">
+                        <strong>${c.code}</strong>
+                        <span class="small">ICD</span>
+                      </div>
+                      <div class="small" style="margin-top:6px">${c.description || ""}</div>
+                    </div>
+                  `).join("")}
+                </div>
+              </details>
+            `).join("")}
+          </div>
+        </details>
+      `;
+    }).join("");
+  }
+
+  function countIcd(ch){
+    let n = 0;
+    for(const b of (ch.blocks || [])) n += (b.codes || []).length;
+    return n;
+  }
+
+  // ---------- Init ----------
+  async function init(){
+    try{
+      // Load both trees once
+      const [cptRes, icdRes] = await Promise.all([
+        fetch("/tree/cpt"),
+        fetch("/tree/icd")
+      ]);
+
+      CPT_TREE = await cptRes.json();
+      ICD_TREE = await icdRes.json();
+
+      CPT_FLAT = buildCptFlat(CPT_TREE);
+      ICD_FLAT = buildIcdFlat(ICD_TREE);
+
+      populateCptFilters();
+      populateIcdFilters();
+
+      // default show CPT
+      setKind("cpt");
+    }catch(e){
+      document.getElementById("results").innerHTML =
+        `<div class="small" style="color:var(--bad)">Failed to load data</div>`;
+    }
+  }
+
+  init();
 </script>
 
 {% include "partials/footer.html" %}

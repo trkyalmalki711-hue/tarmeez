@@ -1,147 +1,101 @@
 from pathlib import Path
 import pandas as pd
 import csv
+import json
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 
-CPT_FILE = DATA_DIR / "cpt.csv"
-ICD_FILE = DATA_DIR / "icd10.csv"
+# CPT
+CPT_JSON = DATA_DIR / "cpt.json"
+CPT_CSV = DATA_DIR / "cpt.csv"
+
+# ICD
+ICD_JSON = DATA_DIR / "icd10.json"
+ICD_CSV = DATA_DIR / "icd10.csv"
 
 
+# ===================== CPT =====================
 def load_cpt():
-    """
-    CPT robust loader for messy CSV:
-    - handles double quotes "" inside fields
-    - handles lines ending with ';'
-    - handles rows that come in as a single wrapped field
-    - merges extra commas into description
-    """
-    if not CPT_FILE.exists():
-        raise FileNotFoundError(f"Missing file: {CPT_FILE}")
+    # --- JSON (أساسي) ---
+    if CPT_JSON.exists():
+        try:
+            data = json.loads(CPT_JSON.read_text(encoding="utf-8"))
+            rows = []
 
-    rows = []
-    bad = 0
+            for cat in data:
+                category = cat.get("category")
+                for sec in cat.get("sections", []):
+                    section = sec.get("section")
+                    range_ = sec.get("range")
+                    for c in sec.get("codes", []):
+                        rows.append({
+                            "category": category,
+                            "section": section,
+                            "range": range_,
+                            "code": c.get("code"),
+                            "description": c.get("description"),
+                            "keywords": c.get("keywords", "").lower(),
+                        })
 
-    with open(CPT_FILE, "r", encoding="utf-8", errors="replace", newline="") as f:
-        reader = csv.reader(f, delimiter=",", quotechar='"')
-        _header = next(reader, None)  # skip header
+            df = pd.DataFrame(rows)
+            if df.empty:
+                raise ValueError("cpt.json loaded 0 rows")
 
-        for r in reader:
-            if not r:
-                continue
+            print(f"[CPT] loaded from JSON rows={len(df)}")
+            return df
 
-            # بعض السجلات تنقرأ كحقل واحد (بسبب اقتباس ملخبط)
-            if len(r) == 1:
-                s = r[0].strip()
+        except Exception as e:
+            print("[CPT] JSON failed, fallback to CSV:", e)
 
-                # شيل ; في نهاية السطر لو موجود
-                if s.endswith(";"):
-                    s = s[:-1]
+    # --- CSV (احتياطي) ---
+    if not CPT_CSV.exists():
+        raise FileNotFoundError("Missing CPT data")
 
-                # فك التغليف الخارجي لو موجود
-                if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-                    s = s[1:-1]
+    df = pd.read_csv(CPT_CSV, dtype=str).fillna("")
+    df["keywords"] = df["keywords"].str.lower()
 
-                # رجّع الاقتباسات المزدوجة "" إلى "
-                s = s.replace('""', '"')
-
-                try:
-                    r = next(csv.reader([s], delimiter=",", quotechar='"'))
-                except Exception:
-                    bad += 1
-                    continue
-
-            if len(r) < 2:
-                bad += 1
-                continue
-
-            code = (r[0] or "").strip()
-            # لو الوصف فيه فواصل زيادة، نجمعها كلها
-            desc = ",".join(r[1:]).strip()
-
-            # كثير أسطر CPT تنتهي بـ ; بدل ما تكون جزء من الوصف
-            desc = desc.rstrip(";").strip()
-
-            if not code or not desc:
-                continue
-
-            rows.append({
-                "code": code,
-                "description": desc,
-                "section": "",
-                "keywords": desc.lower()
-            })
-
-    df = pd.DataFrame(rows).drop_duplicates(subset=["code", "description"])
-    print(f"[CPT] loaded rows={len(df)} | bad_rows={bad} | file={CPT_FILE}")
-
-    if df.empty:
-        raise ValueError("CPT loaded 0 rows")
-
-    return df[["code", "description", "section", "keywords"]]
+    print(f"[CPT] loaded from CSV rows={len(df)}")
+    return df
 
 
+# ===================== ICD =====================
 def load_icd10():
-    """
-    ICD-10 loader for your wrapped-row CSV.
-    Columns:
-    Id,Code,CodeWithSeparator,ShortDescription,LongDescription,HippaCovered,Deleted
-    Many rows may come as a single quoted field -> we parse twice when needed.
-    """
-    if not ICD_FILE.exists():
-        raise FileNotFoundError(f"Missing file: {ICD_FILE}")
+    # --- JSON (أساسي شجري) ---
+    if ICD_JSON.exists():
+        try:
+            data = json.loads(ICD_JSON.read_text(encoding="utf-8"))
+            rows = []
 
-    rows = []
-    bad = 0
+            for ch in data:
+                chapter = ch.get("chapter")
+                for block in ch.get("blocks", []):
+                    block_name = block.get("block")
+                    for c in block.get("codes", []):
+                        rows.append({
+                            "chapter": chapter,
+                            "block": block_name,
+                            "code": c.get("code"),
+                            "description": c.get("description"),
+                            "keywords": c.get("keywords", "").lower(),
+                        })
 
-    with open(ICD_FILE, "r", encoding="utf-8", errors="replace", newline="") as f:
-        reader = csv.reader(f, delimiter=",", quotechar='"')
-        _header = next(reader, None)  # skip header
+            df = pd.DataFrame(rows)
+            if df.empty:
+                raise ValueError("icd10.json loaded 0 rows")
 
-        for r in reader:
-            if not r:
-                continue
+            print(f"[ICD] loaded from JSON rows={len(df)}")
+            return df
 
-            # case: whole record in one field
-            if len(r) == 1:
-                s = r[0].strip()
-                if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
-                    s = s[1:-1]
-                s = s.replace('""', '"')
-                try:
-                    r = next(csv.reader([s], delimiter=",", quotechar='"'))
-                except Exception:
-                    bad += 1
-                    continue
+        except Exception as e:
+            print("[ICD] JSON failed, fallback to CSV:", e)
 
-            if len(r) < 7:
-                bad += 1
-                continue
-            if len(r) > 7:
-                # merge extras into LongDescription (index 4)
-                r = r[:4] + [",".join(r[4:-2])] + r[-2:]
+    # --- CSV (احتياطي) ---
+    if not ICD_CSV.exists():
+        raise FileNotFoundError("Missing ICD data")
 
-            _id, code, code_sep, short_desc, long_desc, hipaa, deleted = r
+    df = pd.read_csv(ICD_CSV, dtype=str).fillna("")
+    df["keywords"] = df["keywords"].str.lower()
 
-            code_sep = (code_sep or "").strip()
-            long_desc = (long_desc or "").strip()
-            short_desc = (short_desc or "").strip()
-
-            # للتعليم: لا نستبعد Deleted
-            if not code_sep or not long_desc:
-                continue
-
-            rows.append({
-                "code": code_sep,
-                "description": long_desc,
-                "keywords": short_desc.lower()
-            })
-
-    df = pd.DataFrame(rows).drop_duplicates(subset=["code", "description"])
-    print(f"[ICD] loaded rows={len(df)} | bad_rows={bad} | file={ICD_FILE}")
-
-    if df.empty:
-        raise ValueError("ICD loaded 0 rows")
-
+    print(f"[ICD] loaded from CSV rows={len(df)}")
     return df
