@@ -17,6 +17,39 @@ from app.ai_simple import generate_ai_questions
 
 app = FastAPI(title="Tarmeez", version="0.1.0")
 
+
+
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+import re
+
+class MojibakeFixMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        resp = await call_next(request)
+        ctype = resp.headers.get("content-type","")
+        if "application/json" not in ctype.lower():
+            return resp
+        body = b""
+        async for chunk in resp.body_iterator:
+            body += chunk
+        try:
+            txt = body.decode("utf-8", errors="ignore")
+        except Exception:
+            return Response(content=body, status_code=resp.status_code, headers=dict(resp.headers), media_type=resp.media_type)
+        txt = re.sub(r"(\d)â(\d)", r"\1\2", txt)
+        txt = txt.replace("\x96", "")
+        txt = (txt
+            .replace("â","")
+            .replace("â","")
+            .replace("â","‘")
+            .replace("â","’")
+            .replace("âœ","")
+            .replace("â","")
+        )
+        return Response(content=txt.encode("utf-8"), status_code=resp.status_code, headers=dict(resp.headers), media_type=resp.media_type)
+
+app.add_middleware(MojibakeFixMiddleware)
+
 BASE_DIR = Path(__file__).resolve().parent  # .../app
 TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
@@ -178,6 +211,23 @@ def tree_icd():
 
 
 # ---------------- DETAILS (Option 1) ----------------
+
+
+# Aliases for older front-end endpoints
+@app.get("/api/cpt/search", response_class=JSONResponse)
+def api_cpt_search(q: str = Query("", min_length=0), limit: int = 3):
+    return search_cpt(q=q, limit=limit)
+
+@app.get("/api/icd/search", response_class=JSONResponse)
+def api_icd_search(q: str = Query("", min_length=0), limit: int = 3):
+    return search_icd(q=q, limit=limit)
+
+@app.get("/api/icd/search", response_class=JSONResponse)
+def api_icd_search(q: str = Query("", min_length=0), limit: int = 10):
+    if ICD_DF is None:
+        raise HTTPException(status_code=500, detail="ICD data not loaded")
+    return {"query": q, "results": _sanitize_results(free_search(ICD_DF, q, limit=limit, kind="icd"))}
+
 @app.get("/api/code/{kind}/{code}", response_class=JSONResponse)
 def code_details(kind: str, code: str):
     df, k = _get_df(kind)
@@ -270,17 +320,20 @@ def api_ai_cases(
 
 # ---------------- Search APIs (keep) ----------------
 @app.get("/search/cpt", response_class=JSONResponse)
-def search_cpt(q: str = Query("", min_length=0), limit: int = 10):
+def search_cpt(q: str = Query("", min_length=0), limit: int = 3):
     if CPT_DF is None:
         raise HTTPException(status_code=500, detail="CPT data not loaded")
-    return {"query": q, "results": free_search(CPT_DF, q, limit=limit, kind="cpt")}
-
+    limit = min(int(limit or 3), 3)
+    results = free_search(CPT_DF, q, limit=limit, meta_cols=["category","section","range"])
+    return {"query": q, "results": _sanitize_results(results)}
 
 @app.get("/search/icd", response_class=JSONResponse)
-def search_icd(q: str = Query("", min_length=0), limit: int = 10):
+def search_icd(q: str = Query("", min_length=0), limit: int = 3):
     if ICD_DF is None:
         raise HTTPException(status_code=500, detail="ICD data not loaded")
-    return {"query": q, "results": free_search(ICD_DF, q, limit=limit, kind="icd")}
+    limit = min(int(limit or 3), 3)
+    results = free_search(ICD_DF, q, limit=limit, meta_cols=["chapter","block"])
+    return {"query": q, "results": _sanitize_results(results)}
 
 @app.get("/quiz/run/{kind}", response_class=HTMLResponse)
 def quiz_run(request: Request, kind: str, n: int = 10, difficulty: str = "medium"):
@@ -307,3 +360,21 @@ def cases_run(request: Request, kind: str, n: int = 10):
             "n": n,
         },
     )
+
+
+def _fix_mojibake(text: str) -> str:
+    if not isinstance(text, str):
+        return text
+    return text.replace("â", "").replace("â", "")
+
+def _sanitize_results(results):
+    out = []
+    for r in results or []:
+        rr = dict(r)
+        rr["code"] = _fix_mojibake(rr.get("code",""))
+        rr["description"] = _fix_mojibake(rr.get("description",""))
+        meta = rr.get("meta") or {}
+        if isinstance(meta, dict):
+            rr["meta"] = {k: _fix_mojibake(v) for k,v in meta.items()}
+        out.append(rr)
+    return out
